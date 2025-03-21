@@ -3,12 +3,14 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Droplet, Menu, User, Search, ShieldCheck, X } from "lucide-react";
+import { Droplet, Menu, User, Search, ShieldCheck, X, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,12 +27,28 @@ export const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   const navLinks = [
     { title: "Home", href: "/", icon: <Droplet className="h-4 w-4" /> },
     { title: "Profile", href: "/profile", icon: <User className="h-4 w-4" /> },
     { title: "Search", href: "/search", icon: <Search className="h-4 w-4" /> },
-    { title: "Admin", href: "/admin", icon: <ShieldCheck className="h-4 w-4" /> },
   ];
+
+  // Only show Admin link for admin users
+  if (user && isAdmin()) {
+    navLinks.push({ 
+      title: "Admin", 
+      href: "/admin", 
+      icon: <ShieldCheck className="h-4 w-4" /> 
+    });
+  }
 
   return (
     <header
@@ -70,12 +88,38 @@ export const Navbar = () => {
                 </span>
               </Link>
             ))}
-            <Button 
-              size="sm" 
-              className="ml-4 rounded-full bg-blood text-white hover:bg-blood/90"
-            >
-              Donate Now
-            </Button>
+            
+            {user ? (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="ml-4 rounded-full"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-1" /> 
+                Sign Out
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                className="ml-4 rounded-full bg-primary text-white"
+                asChild
+              >
+                <Link to="/auth/signin">
+                  <LogIn className="h-4 w-4 mr-1" /> 
+                  Sign In
+                </Link>
+              </Button>
+            )}
+            
+            {user && (
+              <Button 
+                size="sm" 
+                className="ml-2 rounded-full bg-blood text-white hover:bg-blood/90"
+              >
+                Donate Now
+              </Button>
+            )}
           </nav>
 
           {/* Mobile menu button */}
@@ -112,12 +156,35 @@ export const Navbar = () => {
                 <span>{link.title}</span>
               </Link>
             ))}
-            <div className="pt-4">
-              <Button 
-                className="w-full rounded-full bg-blood text-white hover:bg-blood/90 py-6"
-              >
-                Donate Now
-              </Button>
+            <div className="pt-4 space-y-3">
+              {user ? (
+                <Button 
+                  className="w-full rounded-lg"
+                  variant="outline"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> 
+                  Sign Out
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full rounded-lg"
+                  asChild
+                >
+                  <Link to="/auth/signin">
+                    <LogIn className="h-4 w-4 mr-2" /> 
+                    Sign In
+                  </Link>
+                </Button>
+              )}
+              
+              {user && (
+                <Button 
+                  className="w-full rounded-full bg-blood text-white hover:bg-blood/90 py-6"
+                >
+                  Donate Now
+                </Button>
+              )}
             </div>
           </nav>
         </div>
