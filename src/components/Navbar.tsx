@@ -42,6 +42,12 @@ export const Navbar = () => {
     }
   }
 
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Sign out button clicked");
+    await signOut();
+  };
+
   return (
     <header
       className={cn(
@@ -86,7 +92,7 @@ export const Navbar = () => {
                 size="sm" 
                 variant="outline"
                 className="ml-4 rounded-full"
-                onClick={() => signOut()}
+                onClick={handleSignOut}
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
@@ -144,7 +150,7 @@ export const Navbar = () => {
                 <Button 
                   className="w-full rounded-full"
                   variant="outline"
-                  onClick={() => signOut()}
+                  onClick={handleSignOut}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
