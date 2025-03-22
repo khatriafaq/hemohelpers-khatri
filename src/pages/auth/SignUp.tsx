@@ -67,6 +67,9 @@ const SignUp = () => {
       if (!error) {
         navigate("/auth/thank-you");
       }
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setError(err.message || "An error occurred during signup");
     } finally {
       setIsLoading(false);
     }

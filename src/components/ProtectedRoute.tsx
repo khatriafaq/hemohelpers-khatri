@@ -25,7 +25,7 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
   }
 
   // Profile not approved yet
-  if (profile && !profile.is_verified && !profile.is_admin) {
+  if (profile && !profile.is_verified && !isAdmin) {
     return <Navigate to="/auth/pending-approval" replace />;
   }
 
