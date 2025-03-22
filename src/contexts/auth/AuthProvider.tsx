@@ -1,32 +1,17 @@
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  profile: any | null;
-  isLoading: boolean;
-  isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{
-    error: any | null;
-    data: any | null;
-  }>;
-  signUp: (email: string, password: string, userData: any) => Promise<{
-    error: any | null;
-    data: any | null;
-  }>;
-  signOut: () => Promise<void>;
-  updateProfile: (data: any) => Promise<{
-    error: any | null;
-    data: any | null;
-  }>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import AuthContext from "./AuthContext";
+import { 
+  fetchUserProfile, 
+  signInWithEmail, 
+  signUpWithEmail, 
+  updateUserProfile,
+  signOutUser
+} from "./authService";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   children 
@@ -52,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setIsAdmin(false);
           navigate('/');
         } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
-          await fetchProfile(session.user.id);
+          await handleProfileFetch(session.user.id);
         }
       }
     );
@@ -63,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id);
+        handleProfileFetch(session.user.id);
       } else {
         setIsLoading(false);
       }
@@ -72,38 +57,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      console.log("Fetching profile for user:", userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        throw error;
-      }
-
-      if (data) {
-        console.log("Profile data:", data);
-        setProfile(data);
-        setIsAdmin(data.is_admin || false);
-      }
-    } catch (error: any) {
-      console.error('Error fetching profile:', error.message);
-    } finally {
-      setIsLoading(false);
+  const handleProfileFetch = async (userId: string) => {
+    const { profile, isAdmin, error } = await fetchUserProfile(userId);
+    
+    if (profile) {
+      setProfile(profile);
+      setIsAdmin(isAdmin);
     }
+    
+    setIsLoading(false);
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await signInWithEmail(email, password);
 
       if (error) {
         toast({
@@ -132,15 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
-      console.log("Signing up with userData:", userData);
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: userData,
-        },
-      });
+      const { data, error } = await signUpWithEmail(email, password, userData);
 
       if (error) {
         console.error("Signup error:", error);
@@ -172,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const signOut = async () => {
     try {
       console.log("Signing out...");
-      const { error } = await supabase.auth.signOut();
+      const { error } = await signOutUser();
       
       if (error) {
         console.error("Sign out error:", error);
@@ -209,11 +168,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateProfile = async (data: any) => {
     try {
-      const { data: updatedData, error } = await supabase
-        .from('profiles')
-        .update(data)
-        .eq('id', user?.id)
-        .select();
+      if (!user) return { error: new Error("No user logged in"), data: null };
+      
+      const { data: updatedData, error } = await updateUserProfile(user.id, data);
 
       if (error) {
         toast({
@@ -256,12 +213,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };
