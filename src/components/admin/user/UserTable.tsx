@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Eye, UserCheck, UserX, X } from "lucide-react";
+import { Eye, UserCheck, UserX } from "lucide-react";
 import { renderStatusBadge } from "./user-utils";
 
 interface UserTableProps {
@@ -115,6 +115,7 @@ const UserTable = ({
                         size="icon"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => onBanUser(user.id)}
+                        disabled={user.status === "banned"}
                       >
                         <UserX className="h-4 w-4" />
                       </Button>
