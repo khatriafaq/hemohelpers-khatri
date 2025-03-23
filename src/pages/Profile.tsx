@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import ProfileForm from "@/components/ProfileForm";
+import { ProfileForm } from "@/components/profile";
 import { useAuth } from "@/contexts/auth";
 import { Loader2 } from "lucide-react";
 
