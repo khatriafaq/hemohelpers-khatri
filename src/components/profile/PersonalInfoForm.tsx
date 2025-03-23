@@ -97,6 +97,36 @@ export default function PersonalInfoForm({ form }: PersonalInfoFormProps) {
         />
       </div>
       
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="orakh"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Orakh</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your Orakh" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="familyCardNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Family Card Number</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your Family Card Number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      
       <Separator className="my-4" />
       
       <ContactInfoForm form={form} />

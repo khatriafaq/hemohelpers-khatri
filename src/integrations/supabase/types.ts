@@ -14,33 +14,39 @@ export type Database = {
           blood_type: string | null
           created_at: string | null
           email: string
+          family_card_number: string | null
           full_name: string | null
           id: string
           is_admin: boolean | null
           is_verified: boolean | null
           location: string | null
+          orakh: string | null
           updated_at: string | null
         }
         Insert: {
           blood_type?: string | null
           created_at?: string | null
           email: string
+          family_card_number?: string | null
           full_name?: string | null
           id: string
           is_admin?: boolean | null
           is_verified?: boolean | null
           location?: string | null
+          orakh?: string | null
           updated_at?: string | null
         }
         Update: {
           blood_type?: string | null
           created_at?: string | null
           email?: string
+          family_card_number?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
           is_verified?: boolean | null
           location?: string | null
+          orakh?: string | null
           updated_at?: string | null
         }
         Relationships: []
