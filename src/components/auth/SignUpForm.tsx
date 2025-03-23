@@ -8,12 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, User, MapPin } from "lucide-react";
 import BloodTypeSelector from "@/components/ui/BloodTypeSelector";
 
+type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+
 interface SignUpFormData {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
-  bloodType: string;
+  bloodType: BloodType;
   location: string;
 }
 
@@ -36,7 +38,7 @@ const SignUpForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBloodTypeChange = (value: any) => {
+  const handleBloodTypeChange = (value: BloodType) => {
     setFormData((prev) => ({ ...prev, bloodType: value }));
   };
 
@@ -73,6 +75,8 @@ const SignUpForm = () => {
       
       if (!error) {
         navigate("/auth/thank-you");
+      } else {
+        setError(error.message);
       }
     } catch (err: any) {
       console.error("Signup error:", err);

@@ -1,13 +1,35 @@
 
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import ProfileForm from "@/components/ProfileForm";
+import { useAuth } from "@/contexts/auth";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
+  const { user, profile, isLoading } = useAuth();
+  const navigate = useNavigate();
+
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate('/auth/sign-in');
+    }
+  }, [user, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blood" />
+        <p className="ml-2 text-muted-foreground">Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-muted/20">
@@ -23,7 +45,7 @@ const Profile = () => {
               </p>
             </div>
             
-            <ProfileForm />
+            {profile && <ProfileForm />}
           </div>
         </div>
       </div>

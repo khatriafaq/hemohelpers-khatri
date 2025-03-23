@@ -1,11 +1,10 @@
 
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+export type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
 
 interface BloodTypeSelectorProps {
-  value: BloodType | null;
+  value: BloodType;
   onChange: (value: BloodType) => void;
   className?: string;
 }
