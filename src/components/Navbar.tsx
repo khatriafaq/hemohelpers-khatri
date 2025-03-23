@@ -3,12 +3,14 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Droplet, Menu, User, Search, ShieldCheck, X } from "lucide-react";
+import { Droplet, Menu, User, Search, ShieldCheck, X, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/auth";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut, isAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,10 +29,24 @@ export const Navbar = () => {
 
   const navLinks = [
     { title: "Home", href: "/", icon: <Droplet className="h-4 w-4" /> },
-    { title: "Profile", href: "/profile", icon: <User className="h-4 w-4" /> },
-    { title: "Search", href: "/search", icon: <Search className="h-4 w-4" /> },
-    { title: "Admin", href: "/admin", icon: <ShieldCheck className="h-4 w-4" /> },
   ];
+
+  if (user) {
+    navLinks.push(
+      { title: "Profile", href: "/profile", icon: <User className="h-4 w-4" /> },
+      { title: "Search", href: "/search", icon: <Search className="h-4 w-4" /> }
+    );
+    
+    if (isAdmin) {
+      navLinks.push({ title: "Admin", href: "/admin", icon: <ShieldCheck className="h-4 w-4" /> });
+    }
+  }
+
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Sign out button clicked");
+    await signOut();
+  };
 
   return (
     <header
@@ -70,12 +86,29 @@ export const Navbar = () => {
                 </span>
               </Link>
             ))}
-            <Button 
-              size="sm" 
-              className="ml-4 rounded-full bg-blood text-white hover:bg-blood/90"
-            >
-              Donate Now
-            </Button>
+            
+            {user ? (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="ml-4 rounded-full"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                className="ml-4 rounded-full bg-blood text-white hover:bg-blood/90"
+                asChild
+              >
+                <Link to="/auth/sign-in">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Link>
+              </Button>
+            )}
           </nav>
 
           {/* Mobile menu button */}
@@ -113,11 +146,26 @@ export const Navbar = () => {
               </Link>
             ))}
             <div className="pt-4">
-              <Button 
-                className="w-full rounded-full bg-blood text-white hover:bg-blood/90 py-6"
-              >
-                Donate Now
-              </Button>
+              {user ? (
+                <Button 
+                  className="w-full rounded-full"
+                  variant="outline"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full rounded-full bg-blood text-white hover:bg-blood/90 py-6"
+                  asChild
+                >
+                  <Link to="/auth/sign-in">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Link>
+                </Button>
+              )}
             </div>
           </nav>
         </div>
