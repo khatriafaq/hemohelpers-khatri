@@ -1,7 +1,6 @@
-
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmail, signUpWithEmail, signOutUser, updateUserProfile } from "../authService";
+import { signInWithEmail, signUpWithEmail, signOutUser, updateUserProfile } from "../services";
 
 export const useAuthOperations = (user: any, setProfile: (profile: any) => void) => {
   const { toast } = useToast();

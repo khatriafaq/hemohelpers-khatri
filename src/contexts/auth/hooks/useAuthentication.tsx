@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { fetchUserProfile } from "../authService";
+import { fetchUserProfile } from "../services/profileService";
 
 export const useAuthentication = () => {
   const [user, setUser] = useState<User | null>(null);
