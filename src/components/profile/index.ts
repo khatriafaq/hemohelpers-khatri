@@ -1,6 +1,14 @@
 
-export { default as ProfileForm } from './ProfileForm';
-export { default as PersonalInfoForm } from './PersonalInfoForm';
-export { default as VerificationDocuments } from './VerificationDocuments';
-export { default as ProfilePreferences } from './ProfilePreferences';
-export { default as ContactInfoForm } from './ContactInfoForm';
+import ProfileForm from './ProfileForm';
+import PersonalInfoForm from './PersonalInfoForm';
+import VerificationDocuments from './VerificationDocuments';
+import ProfilePreferences from './ProfilePreferences';
+import ContactInfoForm from './ContactInfoForm';
+
+export {
+  ProfileForm,
+  PersonalInfoForm,
+  VerificationDocuments, 
+  ProfilePreferences,
+  ContactInfoForm
+};

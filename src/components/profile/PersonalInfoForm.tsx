@@ -6,8 +6,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescripti
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
 import BloodTypeSelector from "@/components/ui/BloodTypeSelector";
-import { ContactInfoForm } from "./ContactInfoForm";
-import { ProfilePreferences } from "./ProfilePreferences";
+import ContactInfoForm from "./ContactInfoForm";
+import ProfilePreferences from "./ProfilePreferences";
 
 interface PersonalInfoFormProps {
   form: UseFormReturn<ProfileFormValues>;

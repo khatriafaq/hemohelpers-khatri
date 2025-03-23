@@ -9,8 +9,8 @@ import { User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { PersonalInfoForm } from "./PersonalInfoForm";
-import { VerificationDocuments } from "./VerificationDocuments";
+import PersonalInfoForm from "./PersonalInfoForm";
+import VerificationDocuments from "./VerificationDocuments";
 import { useAuth } from "@/contexts/auth";
 
 // Profile form schema - we'll use this across multiple components
