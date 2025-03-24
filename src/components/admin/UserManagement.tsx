@@ -34,13 +34,13 @@ const UserManagement = () => {
         
         // Check for the specific user mentioned by the user
         const duplicateCheck = mockUsers.filter(user => 
-          user.email.toLowerCase() === "khatriafaqahmed@gmail.com"
+          user.email.toLowerCase() === "khatriafaqahmed@hotmail.com"
         );
         
         if (duplicateCheck.length > 0) {
-          console.log("Found user khatriafaqahmed@gmail.com in mock data:", duplicateCheck);
+          console.log("Found user khatriafaqahmed@hotmail.com in mock data:", duplicateCheck);
         } else {
-          console.log("User khatriafaqahmed@gmail.com not found in mock data");
+          console.log("User khatriafaqahmed@hotmail.com not found in mock data");
         }
       } catch (error) {
         console.error("Error fetching users:", error);
