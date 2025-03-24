@@ -1,6 +1,8 @@
+
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmail, signUpWithEmail, signOutUser, updateUserProfile } from "../services";
+import { signInWithEmail, signUpWithEmail, signOutUser } from "../services";
+import { updateUserProfile } from "../services/profileService";
 
 export const useAuthOperations = (user: any, setProfile: (profile: any) => void) => {
   const { toast } = useToast();
@@ -100,6 +102,7 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
     try {
       if (!user) return { error: new Error("No user logged in"), data: null };
       
+      console.log("Updating profile with data:", data);
       const { data: updatedData, error } = await updateUserProfile(user.id, data);
 
       if (error) {
@@ -111,8 +114,9 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
         return { error, data: null };
       }
 
-      if (updatedData && updatedData.length > 0) {
-        setProfile(updatedData[0]);
+      if (updatedData) {
+        console.log("Setting updated profile:", updatedData);
+        setProfile(updatedData);
         toast({
           title: "Profile updated",
           description: "Your profile has been updated successfully",
@@ -121,6 +125,7 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
 
       return { data: updatedData, error: null };
     } catch (error: any) {
+      console.error("Profile update error:", error);
       toast({
         title: "Update failed",
         description: error.message,

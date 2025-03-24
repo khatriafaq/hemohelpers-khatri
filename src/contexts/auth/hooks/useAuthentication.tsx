@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +14,37 @@ export const useAuthentication = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleProfileFetch = useCallback(async (userId: string) => {
+    console.log("Handling profile fetch for user:", userId);
+    setIsLoading(true);
+    
+    try {
+      const { profile, isAdmin, error } = await fetchUserProfile(userId);
+      
+      if (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Profile Error",
+          description: "Failed to load your profile. Please try again.",
+          variant: "destructive",
+        });
+      }
+      
+      if (profile) {
+        console.log("Setting profile and admin status:", profile, isAdmin);
+        setProfile(profile);
+        setIsAdmin(isAdmin);
+      } else {
+        console.log("No profile found, setting null");
+        setProfile(null);
+      }
+    } catch (error) {
+      console.error("Error in handleProfileFetch:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -47,36 +78,7 @@ export const useAuthentication = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleProfileFetch = async (userId: string) => {
-    console.log("Handling profile fetch for user:", userId);
-    try {
-      const { profile, isAdmin, error } = await fetchUserProfile(userId);
-      
-      if (error) {
-        console.error("Error fetching profile:", error);
-        toast({
-          title: "Profile Error",
-          description: "Failed to load your profile. Please try again.",
-          variant: "destructive",
-        });
-      }
-      
-      if (profile) {
-        console.log("Setting profile and admin status:", profile, isAdmin);
-        setProfile(profile);
-        setIsAdmin(isAdmin);
-      } else {
-        console.log("No profile found, setting null");
-        setProfile(null);
-      }
-    } catch (error) {
-      console.error("Error in handleProfileFetch:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [navigate, handleProfileFetch]);
 
   return {
     user,

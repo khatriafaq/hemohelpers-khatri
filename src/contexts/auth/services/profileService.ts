@@ -16,9 +16,14 @@ export const fetchUserProfile = async (userId: string) => {
       // Check if the error is "not found" - we'll create a new profile
       if (error.code === 'PGRST116') {
         console.log('Profile not found, creating a new one');
+        
+        // Get user email from auth if possible
+        const { data: userData } = await supabase.auth.getUser();
+        const email = userData?.user?.email || '';
+        
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert([{ id: userId, email: '' }])
+          .insert([{ id: userId, email }])
           .select()
           .single();
           
@@ -52,16 +57,18 @@ export const updateUserProfile = async (userId: string, data: any) => {
     
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert({ id: userId, ...data })
-      .select();
+      .upsert({ id: userId, ...data }, { onConflict: 'id' })
+      .select('*')
+      .single();
 
     if (error) {
       console.error('Error updating profile:', error);
+      throw error;
     } else {
       console.log('Profile updated successfully:', updatedData);
     }
 
-    return { data: updatedData, error };
+    return { data: updatedData, error: null };
   } catch (error: any) {
     console.error('Error in updateUserProfile:', error);
     return { error, data: null };

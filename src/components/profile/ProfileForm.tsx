@@ -38,16 +38,16 @@ export default function ProfileForm() {
   const { toast } = useToast();
   const { updateProfile, profile } = useAuth();
 
-  console.log("Current profile data:", profile);
+  console.log("Current profile data in ProfileForm:", profile);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: profile?.name || "",
+      name: profile?.full_name || "",
       age: profile?.age?.toString() || "",
       bloodType: profile?.blood_type || "O+",
-      city: profile?.city || "",
-      region: profile?.region || "",
+      city: profile?.location?.split(',')[0]?.trim() || "",
+      region: profile?.location?.split(',')[1]?.trim() || "",
       orakh: profile?.orakh || "",
       familyCardNumber: profile?.family_card_number || "",
       isAvailable: profile?.is_available ?? true,
@@ -57,17 +57,36 @@ export default function ProfileForm() {
     },
   });
 
+  // Update form values when profile data changes
+  useState(() => {
+    if (profile) {
+      console.log("Setting form values from profile:", profile);
+      form.reset({
+        name: profile.full_name || "",
+        age: profile.age?.toString() || "",
+        bloodType: profile.blood_type || "O+",
+        city: profile.location?.split(',')[0]?.trim() || "",
+        region: profile.location?.split(',')[1]?.trim() || "",
+        orakh: profile.orakh || "",
+        familyCardNumber: profile.family_card_number || "",
+        isAvailable: profile.is_available ?? true,
+        showContactDetails: profile.show_contact_details ?? false,
+        email: profile.email || "",
+        phone: profile.phone || "",
+      });
+    }
+  }, [profile]);
+
   async function onSubmit(data: ProfileFormValues) {
     console.log("Submitting profile data:", data);
     
     try {
       // Transform form data to match the expected format
       const profileData = {
-        name: data.name,
+        full_name: data.name,
         age: parseInt(data.age),
         blood_type: data.bloodType,
-        city: data.city,
-        region: data.region,
+        location: data.city + (data.region ? `, ${data.region}` : ""),
         orakh: data.orakh,
         family_card_number: data.familyCardNumber,
         is_available: data.isAvailable,
@@ -75,6 +94,8 @@ export default function ProfileForm() {
         email: data.email,
         phone: data.phone,
       };
+      
+      console.log("Transformed profile data:", profileData);
       
       const result = await updateProfile(profileData);
       console.log("Profile update result:", result);
