@@ -108,8 +108,9 @@ const Index = () => {
                 <Button 
                   size="lg" 
                   className="rounded-full bg-blood hover:bg-blood/90 text-white"
+                  asChild
                 >
-                  Register as Donor
+                  <Link to="/auth/sign-up">Register as Donor</Link>
                 </Button>
                 <Button 
                   size="lg" 

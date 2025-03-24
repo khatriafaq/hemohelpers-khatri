@@ -46,9 +46,12 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="rounded-full bg-blood hover:bg-blood/90 text-white px-6"
+                asChild
               >
-                Register as Donor
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <Link to="/auth/sign-up">
+                  Register as Donor
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
               <Button 
                 size="lg" 
