@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -58,7 +58,7 @@ export default function ProfileForm() {
   });
 
   // Update form values when profile data changes
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       console.log("Setting form values from profile:", profile);
       form.reset({
@@ -75,7 +75,7 @@ export default function ProfileForm() {
         phone: profile.phone || "",
       });
     }
-  }, [profile]);
+  }, [profile, form]);
 
   async function onSubmit(data: ProfileFormValues) {
     console.log("Submitting profile data:", data);
