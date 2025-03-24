@@ -103,7 +103,7 @@ export default function PersonalInfoForm({ form }: PersonalInfoFormProps) {
           name="orakh"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Orakh</FormLabel>
+              <FormLabel>Orakh <span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter your Orakh" {...field} />
               </FormControl>
@@ -117,7 +117,7 @@ export default function PersonalInfoForm({ form }: PersonalInfoFormProps) {
           name="familyCardNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Family Card Number</FormLabel>
+              <FormLabel>Family Card Number <span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter your Family Card Number" {...field} />
               </FormControl>

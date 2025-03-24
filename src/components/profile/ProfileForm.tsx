@@ -22,8 +22,8 @@ export const profileFormSchema = z.object({
   bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
   city: z.string().min(2, { message: "City is required" }),
   region: z.string().optional(),
-  orakh: z.string().optional(),
-  familyCardNumber: z.string().optional(),
+  orakh: z.string().min(1, { message: "Orakh is required" }),
+  familyCardNumber: z.string().min(1, { message: "Family Card Number is required" }),
   isAvailable: z.boolean().default(true),
   showContactDetails: z.boolean().default(false),
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -37,6 +37,8 @@ export default function ProfileForm() {
   const [uploadedDocuments, setUploadedDocuments] = useState<File[]>([]);
   const { toast } = useToast();
   const { updateProfile, profile } = useAuth();
+
+  console.log("Current profile data:", profile);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -56,7 +58,7 @@ export default function ProfileForm() {
   });
 
   async function onSubmit(data: ProfileFormValues) {
-    console.log(data);
+    console.log("Submitting profile data:", data);
     
     try {
       // Transform form data to match the expected format
@@ -74,13 +76,15 @@ export default function ProfileForm() {
         phone: data.phone,
       };
       
-      await updateProfile(profileData);
+      const result = await updateProfile(profileData);
+      console.log("Profile update result:", result);
       
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully.",
       });
     } catch (error) {
+      console.error("Profile update error:", error);
       toast({
         title: "Update failed",
         description: "There was an error updating your profile.",
