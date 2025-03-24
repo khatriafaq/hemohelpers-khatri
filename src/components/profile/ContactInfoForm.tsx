@@ -31,7 +31,7 @@ export default function ContactInfoForm({ form }: ContactInfoFormProps) {
         name="phone"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Phone Number (Optional)</FormLabel>
+            <FormLabel>Phone Number <span className="text-destructive">*</span></FormLabel>
             <FormControl>
               <Input placeholder="Your phone number" {...field} />
             </FormControl>

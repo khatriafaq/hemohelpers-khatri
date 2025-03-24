@@ -27,7 +27,7 @@ export const profileFormSchema = z.object({
   isAvailable: z.boolean().default(true),
   showContactDetails: z.boolean().default(false),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  phone: z.string().optional(),
+  phone: z.string().min(1, { message: "Phone number is required" }),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
