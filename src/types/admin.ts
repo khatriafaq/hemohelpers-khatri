@@ -12,6 +12,8 @@ export interface User {
   status: "verified" | "pending" | "rejected" | "banned";
   registeredDate: string;
   documents: string[];
+  phone?: string;
+  age?: number | string;
 }
 
 // Request Management types
