@@ -58,15 +58,15 @@ export const updateUserProfile = async (userId: string, data: any) => {
     // Transform form data to match the database schema column names
     const profileData = {
       id: userId,
-      full_name: data.full_name,
+      full_name: data.name, // Changed from data.full_name to data.name
       age: data.age ? parseInt(data.age) : null,
-      blood_type: data.blood_type,
-      location: data.location,
+      blood_type: data.bloodType, // Changed from data.blood_type to data.bloodType
+      location: data.city, // Changed from data.location to data.city
       region: data.region,
       orakh: data.orakh,
-      family_card_number: data.family_card_number,
-      is_available: data.is_available,
-      show_contact_details: data.show_contact_details,
+      family_card_number: data.familyCardNumber, // Changed from data.family_card_number to data.familyCardNumber
+      is_available: data.isAvailable, // Changed from data.is_available to data.isAvailable
+      show_contact_details: data.showContactDetails, // Changed from data.show_contact_details to data.showContactDetails
       email: data.email,
       phone: data.phone,
     };

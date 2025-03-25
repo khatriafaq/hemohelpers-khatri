@@ -65,7 +65,7 @@ export default function ProfileForm() {
         name: profile.full_name || "",
         age: profile.age?.toString() || "",
         bloodType: profile.blood_type || "O+",
-        city: profile.location?.split(',')[0]?.trim() || "",
+        city: profile.location || "",
         region: profile.region || "",
         orakh: profile.orakh || "",
         familyCardNumber: profile.family_card_number || "",
@@ -81,30 +81,23 @@ export default function ProfileForm() {
     console.log("Submitting profile data:", data);
     
     try {
-      // Transform form data to match the expected database schema
-      const profileData = {
-        full_name: data.name,
-        age: data.age,
-        blood_type: data.bloodType,
-        location: data.city + (data.region ? `, ${data.region}` : ""),
-        region: data.region,
-        orakh: data.orakh,
-        family_card_number: data.familyCardNumber,
-        is_available: data.isAvailable,
-        show_contact_details: data.showContactDetails,
-        email: data.email,
-        phone: data.phone,
-      };
-      
-      console.log("Transformed profile data:", profileData);
-      
-      const result = await updateProfile(profileData);
+      // Pass the form data directly to updateProfile
+      // The mapping to database columns happens in the updateUserProfile function
+      const result = await updateProfile(data);
       console.log("Profile update result:", result);
       
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      });
+      if (result.error) {
+        toast({
+          title: "Update failed",
+          description: "There was an error updating your profile.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been updated successfully.",
+        });
+      }
     } catch (error) {
       console.error("Profile update error:", error);
       toast({

@@ -103,6 +103,7 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
       if (!user) return { error: new Error("No user logged in"), data: null };
       
       console.log("Updating profile with data:", data);
+      // We're passing the form data directly to updateUserProfile, which will handle the mapping
       const { data: updatedData, error } = await updateUserProfile(user.id, data);
 
       if (error) {
