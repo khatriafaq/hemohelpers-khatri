@@ -55,9 +55,27 @@ export const updateUserProfile = async (userId: string, data: any) => {
   try {
     console.log("Updating profile for user:", userId, "with data:", data);
     
+    // Transform form data to match the database schema column names
+    const profileData = {
+      id: userId,
+      full_name: data.full_name,
+      age: data.age ? parseInt(data.age) : null,
+      blood_type: data.blood_type,
+      location: data.location,
+      region: data.region,
+      orakh: data.orakh,
+      family_card_number: data.family_card_number,
+      is_available: data.is_available,
+      show_contact_details: data.show_contact_details,
+      email: data.email,
+      phone: data.phone,
+    };
+    
+    console.log("Transformed profile data for database:", profileData);
+    
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert({ id: userId, ...data }, { onConflict: 'id' })
+      .upsert(profileData, { onConflict: 'id' })
       .select('*')
       .single();
 

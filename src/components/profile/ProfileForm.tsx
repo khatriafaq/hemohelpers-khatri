@@ -81,10 +81,10 @@ export default function ProfileForm() {
     console.log("Submitting profile data:", data);
     
     try {
-      // Transform form data to match the expected format
+      // Transform form data to match the expected database schema
       const profileData = {
         full_name: data.name,
-        age: parseInt(data.age),
+        age: data.age,
         blood_type: data.bloodType,
         location: data.city + (data.region ? `, ${data.region}` : ""),
         region: data.region,
