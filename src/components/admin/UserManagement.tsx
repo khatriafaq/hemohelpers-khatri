@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog } from "@/components/ui/dialog";
 import { User } from "@/types/admin";
 
-import UserDetailsDialog from "./user/UserDetailsDialog";
+import UserDetailsDialog from "./user/dialogs/UserDetailsDialog";
 import UserFilters from "./user/UserFilters";
 import UserTabs from "./user/UserTabs";
 import { useUsers } from "./user/hooks/useUsers";
