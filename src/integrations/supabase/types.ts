@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          age: number | null
           blood_type: string | null
           created_at: string | null
           email: string
@@ -21,9 +22,12 @@ export type Database = {
           is_verified: boolean | null
           location: string | null
           orakh: string | null
+          phone: string | null
+          region: string | null
           updated_at: string | null
         }
         Insert: {
+          age?: number | null
           blood_type?: string | null
           created_at?: string | null
           email: string
@@ -34,9 +38,12 @@ export type Database = {
           is_verified?: boolean | null
           location?: string | null
           orakh?: string | null
+          phone?: string | null
+          region?: string | null
           updated_at?: string | null
         }
         Update: {
+          age?: number | null
           blood_type?: string | null
           created_at?: string | null
           email?: string
@@ -47,6 +54,8 @@ export type Database = {
           is_verified?: boolean | null
           location?: string | null
           orakh?: string | null
+          phone?: string | null
+          region?: string | null
           updated_at?: string | null
         }
         Relationships: []

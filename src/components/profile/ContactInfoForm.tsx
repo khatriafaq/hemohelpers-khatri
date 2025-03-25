@@ -33,7 +33,7 @@ export default function ContactInfoForm({ form }: ContactInfoFormProps) {
           <FormItem>
             <FormLabel>Phone Number <span className="text-destructive">*</span></FormLabel>
             <FormControl>
-              <Input placeholder="Your phone number" {...field} />
+              <Input placeholder="Your phone number" {...field} required />
             </FormControl>
             <FormMessage />
           </FormItem>
