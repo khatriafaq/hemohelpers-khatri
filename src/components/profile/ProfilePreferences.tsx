@@ -4,25 +4,12 @@ import { ProfileFormValues } from "./ProfileForm";
 import { FormField, FormItem, FormLabel, FormDescription, FormControl } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { CalendarClock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
 
 interface ProfilePreferencesProps {
   form: UseFormReturn<ProfileFormValues>;
 }
 
 export default function ProfilePreferences({ form }: ProfilePreferencesProps) {
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    // Notify user that these preferences are saved locally only
-    toast({
-      title: "Note about preferences",
-      description: "Availability and contact visibility preferences are temporarily stored locally only.",
-      duration: 5000,
-    });
-  }, []);
-
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Preferences</h3>
@@ -39,7 +26,6 @@ export default function ProfilePreferences({ form }: ProfilePreferencesProps) {
                 </FormLabel>
                 <FormDescription>
                   Set your current availability status for blood donation.
-                  <span className="text-muted-foreground text-xs block mt-1">(Currently stored locally only)</span>
                 </FormDescription>
               </div>
               <FormControl>
@@ -61,7 +47,6 @@ export default function ProfilePreferences({ form }: ProfilePreferencesProps) {
                 <FormLabel className="text-base">Show Contact Details</FormLabel>
                 <FormDescription>
                   Allow others to see your contact information in search results.
-                  <span className="text-muted-foreground text-xs block mt-1">(Currently stored locally only)</span>
                 </FormDescription>
               </div>
               <FormControl>

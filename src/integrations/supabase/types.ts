@@ -19,11 +19,13 @@ export type Database = {
           full_name: string | null
           id: string
           is_admin: boolean | null
+          is_available: boolean | null
           is_verified: boolean | null
           location: string | null
           orakh: string | null
           phone: string | null
           region: string | null
+          show_contact_details: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -35,11 +37,13 @@ export type Database = {
           full_name?: string | null
           id: string
           is_admin?: boolean | null
+          is_available?: boolean | null
           is_verified?: boolean | null
           location?: string | null
           orakh?: string | null
           phone?: string | null
           region?: string | null
+          show_contact_details?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -51,11 +55,13 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          is_available?: boolean | null
           is_verified?: boolean | null
           location?: string | null
           orakh?: string | null
           phone?: string | null
           region?: string | null
+          show_contact_details?: boolean | null
           updated_at?: string | null
         }
         Relationships: []

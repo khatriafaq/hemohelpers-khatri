@@ -56,7 +56,6 @@ export const updateUserProfile = async (userId: string, data: any) => {
     console.log("Updating profile for user:", userId, "with data:", data);
     
     // Transform form data to match the database schema column names
-    // Only include fields that exist in the database schema
     const profileData = {
       id: userId,
       full_name: data.name, 
@@ -68,9 +67,8 @@ export const updateUserProfile = async (userId: string, data: any) => {
       family_card_number: data.familyCardNumber,
       email: data.email,
       phone: data.phone,
-      // Remove these fields as they don't exist in the database
-      // is_available: data.isAvailable,
-      // show_contact_details: data.showContactDetails,
+      is_available: data.isAvailable,
+      show_contact_details: data.showContactDetails,
     };
     
     console.log("Transformed profile data for database:", profileData);
