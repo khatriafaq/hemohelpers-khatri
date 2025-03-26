@@ -5,10 +5,12 @@ import Navbar from "@/components/Navbar";
 import { ProfileForm } from "@/components/profile";
 import { useAuth } from "@/contexts/auth";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { user, profile, isLoading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Scroll to top on page load
   useEffect(() => {
@@ -22,6 +24,21 @@ const Profile = () => {
       navigate('/auth/sign-in');
     }
   }, [user, isLoading, navigate]);
+
+  // Check if there are any auth errors on page load
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+    
+    if (error) {
+      toast({
+        title: "Authentication Error",
+        description: errorDescription || "There was an error with authentication.",
+        variant: "destructive"
+      });
+    }
+  }, [toast]);
 
   if (isLoading) {
     return (

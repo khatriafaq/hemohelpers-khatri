@@ -58,26 +58,25 @@ export const updateUserProfile = async (userId: string, data: any) => {
     // Transform form data to match the database schema column names
     const profileData = {
       id: userId,
-      full_name: data.name, // Changed from data.full_name to data.name
+      full_name: data.name, 
       age: data.age ? parseInt(data.age) : null,
-      blood_type: data.bloodType, // Changed from data.blood_type to data.bloodType
-      location: data.city, // Changed from data.location to data.city
+      blood_type: data.bloodType,
+      location: data.city,
       region: data.region,
       orakh: data.orakh,
-      family_card_number: data.familyCardNumber, // Changed from data.family_card_number to data.familyCardNumber
-      is_available: data.isAvailable, // Changed from data.is_available to data.isAvailable
-      show_contact_details: data.showContactDetails, // Changed from data.show_contact_details to data.showContactDetails
+      family_card_number: data.familyCardNumber,
+      is_available: data.isAvailable,
+      show_contact_details: data.showContactDetails,
       email: data.email,
       phone: data.phone,
     };
     
     console.log("Transformed profile data for database:", profileData);
     
-    // Use upsert instead of update to ensure we create the record if it doesn't exist
-    // Fix: Remove 'returning' option and pass the profileData as a single object
+    // Fix: Use upsert with proper options, pass profileData as an array with a single object
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert(profileData, { onConflict: 'id' })
+      .upsert([profileData], { onConflict: 'id' })
       .select('*')
       .single();
 
