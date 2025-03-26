@@ -34,6 +34,7 @@ export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfileForm() {
   const [tab, setTab] = useState("personal");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedDocuments, setUploadedDocuments] = useState<File[]>([]);
   const { toast } = useToast();
   const { updateProfile, profile } = useAuth();
@@ -79,17 +80,18 @@ export default function ProfileForm() {
 
   async function onSubmit(data: ProfileFormValues) {
     console.log("Submitting profile data:", data);
+    setIsSubmitting(true);
     
     try {
       // Pass the form data directly to updateProfile
-      // The mapping to database columns happens in the updateUserProfile function
       const result = await updateProfile(data);
       console.log("Profile update result:", result);
       
       if (result.error) {
+        console.error("Profile update error details:", result.error);
         toast({
           title: "Update failed",
-          description: "There was an error updating your profile.",
+          description: result.error.message || "There was an error updating your profile.",
           variant: "destructive"
         });
       } else {
@@ -105,6 +107,8 @@ export default function ProfileForm() {
         description: "There was an error updating your profile.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -135,8 +139,19 @@ export default function ProfileForm() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <PersonalInfoForm form={form} />
                   
-                  <Button type="submit" className="w-full rounded-lg">
-                    Save Profile
+                  <Button 
+                    type="submit" 
+                    className="w-full rounded-lg"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Profile'
+                    )}
                   </Button>
                 </form>
               </Form>

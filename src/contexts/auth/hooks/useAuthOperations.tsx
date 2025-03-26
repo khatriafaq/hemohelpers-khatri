@@ -100,16 +100,25 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
 
   const updateProfile = async (data: any) => {
     try {
-      if (!user) return { error: new Error("No user logged in"), data: null };
+      if (!user) {
+        console.error("No user logged in");
+        toast({
+          title: "Update failed",
+          description: "You must be logged in to update your profile.",
+          variant: "destructive",
+        });
+        return { error: new Error("No user logged in"), data: null };
+      }
       
       console.log("Updating profile with data:", data);
-      // We're passing the form data directly to updateUserProfile, which will handle the mapping
+      
       const { data: updatedData, error } = await updateUserProfile(user.id, data);
 
       if (error) {
+        console.error("Profile update error:", error);
         toast({
           title: "Update failed",
-          description: error.message,
+          description: error.message || "There was an error updating your profile.",
           variant: "destructive",
         });
         return { error, data: null };
@@ -129,7 +138,7 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
       console.error("Profile update error:", error);
       toast({
         title: "Update failed",
-        description: error.message,
+        description: error.message || "There was an error updating your profile.",
         variant: "destructive",
       });
       return { error, data: null };

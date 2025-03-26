@@ -73,18 +73,21 @@ export const updateUserProfile = async (userId: string, data: any) => {
     
     console.log("Transformed profile data for database:", profileData);
     
-    // Fix: Use upsert with proper options, pass profileData as an array with a single object
+    // Explicitly type the options object to match what Supabase expects
+    const options = { onConflict: 'id' };
+    
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert([profileData], { onConflict: 'id' })
-      .select('*')
-      .single();
+      .upsert([profileData], options)
+      .select();
 
     if (error) {
       console.error('Error updating profile:', error);
       throw error;
     } else {
       console.log('Profile updated successfully:', updatedData);
+      // Return the first item if it's an array
+      return { data: Array.isArray(updatedData) ? updatedData[0] : updatedData, error: null };
     }
 
     return { data: updatedData, error: null };
