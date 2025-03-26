@@ -18,6 +18,7 @@ const Profile = () => {
   // Check if user is logged in
   useEffect(() => {
     if (!isLoading && !user) {
+      console.log("No user found, redirecting to sign-in");
       navigate('/auth/sign-in');
     }
   }, [user, isLoading, navigate]);
@@ -27,6 +28,14 @@ const Profile = () => {
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-blood" />
         <p className="ml-2 text-muted-foreground">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Please sign in to view your profile.</p>
       </div>
     );
   }
@@ -45,7 +54,12 @@ const Profile = () => {
               </p>
             </div>
             
-            {profile && <ProfileForm />}
+            {profile ? <ProfileForm /> : (
+              <div className="text-center p-8 border rounded-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-blood mx-auto mb-4" />
+                <p>Creating your profile...</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

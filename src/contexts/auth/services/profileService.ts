@@ -73,9 +73,13 @@ export const updateUserProfile = async (userId: string, data: any) => {
     
     console.log("Transformed profile data for database:", profileData);
     
+    // Use upsert instead of update to ensure we create the record if it doesn't exist
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert(profileData, { onConflict: 'id' })
+      .upsert(profileData, { 
+        onConflict: 'id',
+        returning: 'representation'  // This ensures we get back the full record
+      })
       .select('*')
       .single();
 
