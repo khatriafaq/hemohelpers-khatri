@@ -64,7 +64,7 @@ export const Navbar = () => {
             className="flex items-center space-x-2 font-medium text-xl animate-fade-in"
           >
             <Droplet className="h-6 w-6 text-blood" />
-            <span className="font-semibold">HemoHelpers Khatri</span>
+            <span className="font-semibold">MCKJ HemoHelpers</span>
           </Link>
 
           {/* Desktop nav */}

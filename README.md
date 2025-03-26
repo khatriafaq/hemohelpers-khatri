@@ -1,5 +1,5 @@
 
-# HemoHelpers Khatri - Blood Donation Network
+# MCKJ HemoHelpers - Blood Donation Network
 
 ## Project info
 
