@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export const fetchUserProfile = async (userId: string) => {
@@ -73,24 +72,22 @@ export const updateUserProfile = async (userId: string, data: any) => {
     
     console.log("Transformed profile data for database:", profileData);
     
-    // Explicitly type the options object to match what Supabase expects
-    const options = { onConflict: 'id' };
-    
+    // Make sure we're using the correct Supabase API format for upsert
     const { data: updatedData, error } = await supabase
       .from('profiles')
-      .upsert([profileData], options)
+      .upsert([profileData])
       .select();
 
     if (error) {
       console.error('Error updating profile:', error);
-      throw error;
-    } else {
-      console.log('Profile updated successfully:', updatedData);
-      // Return the first item if it's an array
-      return { data: Array.isArray(updatedData) ? updatedData[0] : updatedData, error: null };
+      return { data: null, error };
     }
 
-    return { data: updatedData, error: null };
+    console.log('Profile updated successfully:', updatedData);
+    return { 
+      data: Array.isArray(updatedData) && updatedData.length > 0 ? updatedData[0] : updatedData, 
+      error: null 
+    };
   } catch (error: any) {
     console.error('Error in updateUserProfile:', error);
     return { error, data: null };
