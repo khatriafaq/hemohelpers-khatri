@@ -12,81 +12,98 @@ import { CalendarIcon, Filter, MapPin, Search as SearchIcon } from "lucide-react
 import { cn } from "@/lib/utils";
 import BloodTypeSelector from "@/components/ui/BloodTypeSelector";
 import DonorCard from "@/components/DonorCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock donor data
-const mockDonors = [
-  {
-    id: "1",
-    name: "John Smith",
-    bloodType: "O+",
-    city: "San Francisco",
-    region: "CA",
-    isAvailable: true,
-    distance: 2.3,
-    lastDonation: "May 15, 2023"
-  },
-  {
-    id: "2",
-    name: "Emma Johnson",
-    bloodType: "A-",
-    city: "Oakland",
-    region: "CA",
-    isAvailable: true,
-    distance: 5.8,
-    lastDonation: "March 3, 2023"
-  },
-  {
-    id: "3",
-    name: "Michael Davis",
-    bloodType: "B+",
-    city: "San Jose",
-    region: "CA",
-    isAvailable: false,
-    distance: 8.1,
-    lastDonation: "January 22, 2023"
-  },
-  {
-    id: "4",
-    name: "Sarah Wilson",
-    bloodType: "AB+",
-    city: "Palo Alto",
-    region: "CA",
-    isAvailable: true,
-    distance: 4.7
-  },
-  {
-    id: "5",
-    name: "Robert Taylor",
-    bloodType: "O-",
-    city: "Berkeley",
-    region: "CA",
-    isAvailable: true,
-    distance: 7.2,
-    lastDonation: "April 11, 2023"
-  },
-  {
-    id: "6",
-    name: "Jennifer Brown",
-    bloodType: "A+",
-    city: "San Mateo",
-    region: "CA",
-    isAvailable: false,
-    distance: 9.5,
-    lastDonation: "February 8, 2023"
-  }
-];
+// Define the donor type based on the real data structure
+interface Donor {
+  id: string;
+  name: string;
+  bloodType: string;
+  city: string;
+  region?: string;
+  isAvailable: boolean;
+  distance?: number;
+  lastDonation?: string;
+  avatar?: string;
+}
 
 export default function DonorSearch() {
   const [search, setSearch] = useState("");
   const [bloodType, setBloodType] = useState<any>(null);
   const [distance, setDistance] = useState([20]);
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [filteredDonors, setFilteredDonors] = useState(mockDonors);
+  const [donors, setDonors] = useState<Donor[]>([]);
+  const [filteredDonors, setFilteredDonors] = useState<Donor[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  
+  // Fetch real donors from the database
+  useEffect(() => {
+    const fetchDonors = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Query the profiles table to get users who can be donors
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, blood_type, location, region, is_available')
+          .eq('is_available', true)
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error("Error fetching donors:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load donors. Please try again.",
+            variant: "destructive",
+          });
+          setDonors([]);
+        } else if (data) {
+          console.log("Fetched donors:", data);
+          
+          // Transform the data to match our Donor interface
+          const transformedDonors = data.map(profile => {
+            // Calculate a mock distance - in a real app this would be based on geolocation
+            const mockDistance = Math.floor(Math.random() * 20) + 1;
+            
+            return {
+              id: profile.id,
+              name: profile.full_name || "Anonymous Donor",
+              bloodType: profile.blood_type || "O+",
+              city: profile.location || "Unknown Location",
+              region: profile.region || "",
+              isAvailable: profile.is_available || false,
+              distance: mockDistance,
+              // In a real app, you might have this data in another related table
+              lastDonation: profile.last_donation_date || undefined
+            };
+          });
+          
+          setDonors(transformedDonors);
+          setFilteredDonors(transformedDonors);
+        }
+      } catch (error) {
+        console.error("Exception fetching donors:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load donors. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchDonors();
+  }, [toast]);
   
   // Filter donors based on search criteria
   useEffect(() => {
-    let results = mockDonors;
+    if (donors.length === 0) return;
+    
+    let results = [...donors];
     
     // Filter by search term (name or city)
     if (search) {
@@ -106,14 +123,18 @@ export default function DonorSearch() {
     
     // Filter by distance
     if (distance[0] < 20) {
-      results = results.filter(donor => donor.distance <= distance[0]);
+      results = results.filter(donor => 
+        donor.distance !== undefined && donor.distance <= distance[0]
+      );
     }
     
     // Sort by distance
-    results = results.sort((a, b) => a.distance - b.distance);
+    results = results.sort((a, b) => 
+      (a.distance || 20) - (b.distance || 20)
+    );
     
     setFilteredDonors(results);
-  }, [search, bloodType, distance]);
+  }, [search, bloodType, distance, donors]);
   
   const clearFilters = () => {
     setSearch("");
@@ -208,11 +229,21 @@ export default function DonorSearch() {
       {/* Location hint */}
       <div className="flex items-center text-sm text-muted-foreground">
         <MapPin className="h-4 w-4 mr-1.5" />
-        <span>Showing donors near San Francisco, CA</span>
+        <span>Showing donors near you</span>
       </div>
       
       {/* Results */}
-      {filteredDonors.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="w-full h-[200px] animate-pulse bg-muted/50">
+              <CardContent className="flex items-center justify-center h-full">
+                Loading donors...
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredDonors.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDonors.map((donor) => (
             <DonorCard key={donor.id} donor={donor} />
