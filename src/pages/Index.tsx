@@ -132,7 +132,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-6 md:mb-0">
               <Droplet className="h-6 w-6 text-blood" />
-              <span className="font-semibold text-xl">HemoHelpers</span>
+              <span className="font-semibold text-xl">MCKJ HemoHelpers</span>
             </div>
             
             <div className="flex flex-wrap gap-6 mb-6 md:mb-0 justify-center">
