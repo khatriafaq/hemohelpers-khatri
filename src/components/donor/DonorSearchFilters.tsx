@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { CalendarIcon, Filter, Search as SearchIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import BloodTypeSelector from "@/components/ui/BloodTypeSelector";
+import BloodTypeSelector, { BloodType } from "@/components/ui/BloodTypeSelector";
 
 interface DonorSearchFiltersProps {
   search: string;
@@ -36,6 +36,14 @@ export default function DonorSearchFilters({
 }: DonorSearchFiltersProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // Convert string to BloodType or use null
+  const typedBloodType = bloodType as BloodType | null;
+  
+  // Handle blood type change with proper type
+  const handleBloodTypeChange = (newType: BloodType) => {
+    setBloodType(newType);
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-4">
       <div className="relative flex-1">
@@ -60,8 +68,8 @@ export default function DonorSearchFilters({
             <div className="space-y-2">
               <Label>Blood Type</Label>
               <BloodTypeSelector
-                value={bloodType}
-                onChange={setBloodType}
+                value={typedBloodType || "A+"}
+                onChange={handleBloodTypeChange}
               />
             </div>
             
