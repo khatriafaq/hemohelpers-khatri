@@ -47,37 +47,62 @@ export const useAuthentication = () => {
   }, [toast]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_OUT') {
-          setProfile(null);
-          setIsAdmin(false);
-          navigate('/');
-        } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
-          await handleProfileFetch(session.user.id);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Retrieved existing session:", session);
-      setSession(session);
-      setUser(session?.user ?? null);
+    let authListener: { subscription: { unsubscribe: () => void } } | null = null;
+    
+    // Function to handle auth state change
+    const handleAuthChange = (event: string, currentSession: Session | null) => {
+      console.log("Auth state changed:", event, currentSession?.user?.id);
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       
-      if (session?.user) {
-        handleProfileFetch(session.user.id);
-      } else {
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+        setIsAdmin(false);
+        navigate('/');
+      } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && currentSession) {
+        // Use setTimeout to prevent potential auth deadlocks
+        setTimeout(() => {
+          handleProfileFetch(currentSession.user.id);
+        }, 0);
+      }
+    };
+
+    // Setup auth state listener first
+    const setupAuthListener = () => {
+      const { data } = supabase.auth.onAuthStateChange(handleAuthChange);
+      authListener = data;
+    };
+    
+    // Check for existing session
+    const checkExistingSession = async () => {
+      try {
+        console.log("Checking for existing session");
+        const { data } = await supabase.auth.getSession();
+        console.log("Retrieved session:", data.session);
+        
+        if (data.session) {
+          // Handle session ourselves rather than letting onAuthStateChange do it
+          // to ensure we process existing sessions correctly
+          handleAuthChange('INITIAL_SESSION', data.session);
+        } else {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Error getting session:", error);
         setIsLoading(false);
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    // Setup auth in correct order
+    setupAuthListener();
+    checkExistingSession();
+
+    // Cleanup
+    return () => {
+      if (authListener) {
+        authListener.subscription.unsubscribe();
+      }
+    };
   }, [navigate, handleProfileFetch]);
 
   return {
