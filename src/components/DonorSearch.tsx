@@ -23,7 +23,7 @@ interface Donor {
   city: string;
   region?: string;
   isAvailable: boolean;
-  distance?: number;
+  distance: number; // Making this required as expected by DonorCard
   lastDonation?: string;
   avatar?: string;
 }
@@ -75,9 +75,9 @@ export default function DonorSearch() {
               city: profile.location || "Unknown Location",
               region: profile.region || "",
               isAvailable: profile.is_available || false,
-              distance: mockDistance,
-              // In a real app, you might have this data in another related table
-              lastDonation: profile.last_donation_date || undefined
+              distance: mockDistance, // Ensuring this is always set
+              // No last_donation_date in the profiles table, so we'll leave this undefined
+              lastDonation: undefined
             };
           });
           
