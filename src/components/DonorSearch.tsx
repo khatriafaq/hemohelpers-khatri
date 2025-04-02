@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,11 +44,10 @@ export default function DonorSearch() {
       setIsLoading(true);
       
       try {
-        // Query the profiles table to get users who can be donors
+        // Query all profiles that are available to be donors
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, blood_type, location, region, is_available')
-          .eq('is_available', true)
           .order('created_at', { ascending: false });
           
         if (error) {
@@ -74,7 +72,7 @@ export default function DonorSearch() {
               bloodType: profile.blood_type || "O+",
               city: profile.location || "Unknown Location",
               region: profile.region || "",
-              isAvailable: profile.is_available || false,
+              isAvailable: profile.is_available !== false, // Default to true if undefined
               distance: mockDistance, // Ensuring this is always set
               // No last_donation_date in the profiles table, so we'll leave this undefined
               lastDonation: undefined
@@ -229,7 +227,7 @@ export default function DonorSearch() {
       {/* Location hint */}
       <div className="flex items-center text-sm text-muted-foreground">
         <MapPin className="h-4 w-4 mr-1.5" />
-        <span>Showing donors near you</span>
+        <span>Showing all available donors</span>
       </div>
       
       {/* Results */}
