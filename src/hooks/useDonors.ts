@@ -24,14 +24,14 @@ export const useDonors = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch donors from the database
+  // Fetch all donors from the database regardless of current user
   useEffect(() => {
     const fetchDonors = async () => {
       setIsLoading(true);
+      console.log("Fetching all available donors...");
       
       try {
-        // Query all profiles that are available to be donors
-        // No user-specific filtering, show all available donors
+        // Query all profiles that are available to be donors without any user filtering
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, blood_type, location, region, is_available')
@@ -47,7 +47,7 @@ export const useDonors = () => {
           });
           setDonors([]);
         } else if (data) {
-          console.log("Fetched donors:", data);
+          console.log(`Fetched ${data.length} donors:`, data);
           
           // Transform the data to match our Donor interface
           const transformedDonors = data.map(profile => {
