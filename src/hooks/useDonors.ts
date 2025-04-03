@@ -31,6 +31,7 @@ export const useDonors = () => {
       
       try {
         // Query all profiles that are available to be donors
+        // No user-specific filtering, show all available donors
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, blood_type, location, region, is_available')

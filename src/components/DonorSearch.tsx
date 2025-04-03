@@ -36,7 +36,7 @@ export default function DonorSearch() {
       {/* Location hint */}
       <div className="flex items-center text-sm text-muted-foreground">
         <MapPin className="h-4 w-4 mr-1.5" />
-        <span>Showing all available donors</span>
+        <span>Showing all available donors in the system</span>
       </div>
       
       <DonorResults
