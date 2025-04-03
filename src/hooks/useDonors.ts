@@ -34,6 +34,7 @@ export const useDonors = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, blood_type, location, region, is_available')
+          .eq('is_available', true) // Only fetch available donors
           .order('created_at', { ascending: false });
           
         if (error) {
