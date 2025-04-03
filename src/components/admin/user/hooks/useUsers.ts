@@ -14,7 +14,9 @@ export const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        // Fetch real users from Supabase
+        console.log("Fetching all users from profiles table...");
+        
+        // Fetch all users from Supabase without any filtering
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -30,6 +32,8 @@ export const useUsers = () => {
           setLoading(false);
           return;
         }
+
+        console.log(`Fetched ${data?.length || 0} users from profiles table:`, data);
 
         // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
@@ -59,18 +63,8 @@ export const useUsers = () => {
           };
         });
 
+        console.log("Formatted users for display:", formattedUsers);
         setUsers(formattedUsers);
-        
-        // Check for the specific user mentioned by the user
-        const duplicateCheck = formattedUsers.filter(user => 
-          user.email.toLowerCase() === "khatriafaqahmed@hotmail.com"
-        );
-        
-        if (duplicateCheck.length > 0) {
-          console.log("Found user khatriafaqahmed@hotmail.com in data:", duplicateCheck);
-        } else {
-          console.log("User khatriafaqahmed@hotmail.com not found in data");
-        }
       } catch (error) {
         console.error("Exception fetching users:", error);
         toast({
