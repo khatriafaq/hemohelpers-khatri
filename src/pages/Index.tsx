@@ -145,7 +145,7 @@ const Index = () => {
             </div>
             
             <div className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} HemoHelpers. All rights reserved.
+              © {new Date().getFullYear()} MCKJ HemoHelpers. All rights reserved.
             </div>
           </div>
         </div>
