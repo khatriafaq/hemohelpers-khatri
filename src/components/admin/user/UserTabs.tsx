@@ -41,6 +41,7 @@ const UserTabs = ({
       <TabsContent value="all" className="mt-0">
         <UserTable 
           users={filteredUsers}
+          loading={loading}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
@@ -53,6 +54,7 @@ const UserTabs = ({
       <TabsContent value="pending" className="mt-0">
         <UserTable 
           users={filterUsersByStatus(filteredUsers, "pending")}
+          loading={loading}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
@@ -65,6 +67,7 @@ const UserTabs = ({
       <TabsContent value="verified" className="mt-0">
         <UserTable 
           users={filterUsersByStatus(filteredUsers, "verified")}
+          loading={loading}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
@@ -77,6 +80,7 @@ const UserTabs = ({
       <TabsContent value="rejected" className="mt-0">
         <UserTable 
           users={filterUsersByStatus(filteredUsers, "rejected")}
+          loading={loading}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}

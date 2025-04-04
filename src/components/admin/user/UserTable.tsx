@@ -9,6 +9,7 @@ import { renderStatusBadge } from "./user-utils";
 
 interface UserTableProps {
   users: User[];
+  loading?: boolean; // Added loading prop
   onViewUser: (user: User) => void;
   onVerifyUser: (userId: string) => void;
   onRejectUser: (userId: string) => void;
@@ -19,6 +20,7 @@ interface UserTableProps {
 
 const UserTable = ({ 
   users, 
+  loading = false, // Provide default value
   onViewUser, 
   onVerifyUser, 
   onRejectUser, 
@@ -27,7 +29,7 @@ const UserTable = ({
   onDeactivateUser
 }: UserTableProps) => {
   // Add debug information
-  console.log(`UserTable received ${users?.length || 0} users to display`);
+  console.log(`UserTable received ${users?.length || 0} users to display, loading: ${loading}`);
   
   return (
     <div className="rounded-md border">
