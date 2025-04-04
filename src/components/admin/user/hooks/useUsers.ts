@@ -3,23 +3,37 @@ import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/auth";
 
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        console.log("Fetching all users from profiles table...");
+        console.log("Fetching users from profiles table. Current user is admin:", isAdmin);
         
-        // Fetch all users from Supabase without any ordering or filtering
+        if (!isAdmin) {
+          console.warn("Non-admin user attempting to access user management");
+          toast({
+            title: "Access Restricted",
+            description: "You need admin privileges to access all user data.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        
+        // Fetch all users from Supabase
         const { data, error } = await supabase
           .from('profiles')
-          .select('*');
+          .select('*')
+          .order('created_at', { ascending: false });
 
         if (error) {
           console.error("Error fetching users:", error);
@@ -39,9 +53,9 @@ export const useUsers = () => {
           return;
         }
 
-        console.log(`Fetched ${data.length} users from profiles table:`, data);
+        console.log(`Successfully fetched ${data.length} users from profiles table:`, data);
 
-        // Transform the data to match our User interface - making sure we handle all possible cases
+        // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
           // Determine status based on verification state
           let status: "verified" | "pending" | "rejected" | "banned" = "pending";
@@ -51,7 +65,6 @@ export const useUsers = () => {
             status = "rejected";
           }
           
-          // Create a user object with all required fields and provide fallback values
           return {
             id: profile.id || "unknown-id",
             name: profile.full_name || profile.email?.split('@')[0] || "Anonymous User",
@@ -88,7 +101,7 @@ export const useUsers = () => {
     };
 
     fetchUsers();
-  }, [toast]);
+  }, [toast, isAdmin]);
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

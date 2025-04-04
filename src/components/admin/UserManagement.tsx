@@ -3,14 +3,18 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { User } from "@/types/admin";
+import { Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import UserDetailsDialog from "./user/dialogs/UserDetailsDialog";
 import UserFilters from "./user/UserFilters";
 import UserTabs from "./user/UserTabs";
 import { useUsers } from "./user/hooks/useUsers";
 import { useUserActions } from "./user/UserActions";
+import { useAuth } from "@/contexts/auth";
 
 const UserManagement = () => {
+  const { isAdmin } = useAuth();
   const { users, setUsers, loading, searchQuery, setSearchQuery, filteredUsers } = useUsers();
   const { 
     handleVerifyUser, 
@@ -29,9 +33,23 @@ const UserManagement = () => {
   };
 
   // Add debug info to help troubleshoot
-  console.log("UserManagement rendered with", users.length, "total users and", filteredUsers.length, "filtered users");
-  if (users.length === 0 && !loading) {
-    console.log("No users found in UserManagement component. Check Supabase connection and queries.");
+  console.log("UserManagement rendered with", {
+    isAdmin,
+    totalUsers: users.length,
+    filteredUsers: filteredUsers.length,
+    loading
+  });
+
+  if (!isAdmin) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Access Denied</AlertTitle>
+        <AlertDescription>
+          You need admin privileges to access the user management section.
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   return (
@@ -52,16 +70,31 @@ const UserManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <UserTabs 
-            loading={loading}
-            filteredUsers={filteredUsers}
-            onViewUser={handleViewUser}
-            onVerifyUser={handleVerifyUser}
-            onRejectUser={handleRejectUser}
-            onBanUser={handleBanUser}
-            onActivateUser={handleActivateUser}
-            onDeactivateUser={handleDeactivateUser}
-          />
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="mt-4 text-muted-foreground">Loading users...</p>
+            </div>
+          ) : users.length === 0 ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>No users found</AlertTitle>
+              <AlertDescription>
+                No users were found in the database. This could be due to an authentication issue or empty database.
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <UserTabs 
+              loading={loading}
+              filteredUsers={filteredUsers}
+              onViewUser={handleViewUser}
+              onVerifyUser={handleVerifyUser}
+              onRejectUser={handleRejectUser}
+              onBanUser={handleBanUser}
+              onActivateUser={handleActivateUser}
+              onDeactivateUser={handleDeactivateUser}
+            />
+          )}
         </CardContent>
       </Card>
 
