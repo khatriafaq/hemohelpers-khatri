@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import DonorSearch from "@/components/DonorSearch";
@@ -18,10 +17,10 @@ const Search = () => {
       
       <div className="pt-24 pb-16">
         <div className="page-container">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Find Blood Donors</h1>
-            <p className="text-muted-foreground">
-              Search for compatible blood donors in your area and connect with them directly.
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h1 className="text-4xl font-bold mb-4">Find Blood Donors</h1>
+            <p className="text-lg text-muted-foreground">
+              Connect with compatible blood donors in your area and reach out to them directly.
             </p>
           </div>
           

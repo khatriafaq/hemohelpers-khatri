@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -138,7 +137,7 @@ const Index = () => {
             <div className="flex flex-wrap gap-6 mb-6 md:mb-0 justify-center">
               <Link to="/" className="text-foreground/70 hover:text-foreground">Home</Link>
               <Link to="/profile" className="text-foreground/70 hover:text-foreground">Profile</Link>
-              <Link to="/search" className="text-foreground/70 hover:text-foreground">Search</Link>
+              <Link to="/search" className="text-foreground/70 hover:text-foreground">Donors</Link>
               <Link to="/admin" className="text-foreground/70 hover:text-foreground">Admin</Link>
               <a href="#" className="text-foreground/70 hover:text-foreground">About</a>
               <a href="#" className="text-foreground/70 hover:text-foreground">Contact</a>
