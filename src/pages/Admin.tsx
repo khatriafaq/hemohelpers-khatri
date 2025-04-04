@@ -25,7 +25,7 @@ const Admin = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Admin Panel</h1>
             <p className="text-muted-foreground">
-              Manage users, verify profiles, and handle blood donation requests.
+              Manage users, verify profiles, activate/deactivate accounts, and handle blood donation requests.
             </p>
           </div>
           

@@ -92,14 +92,11 @@ export const useUserActions = ({ users, setUsers }: UserActionsProps) => {
   const handleBanUser = async (userId: string) => {
     try {
       // Update the user's status in the database
-      // For banning, we might set a special flag or move them to a banned table
-      // Here we'll just use is_verified = false and add a banned flag
       const { error } = await supabase
         .from('profiles')
         .update({ 
           is_verified: false,
-          // In a real implementation, you might have a specific 'is_banned' column
-          // For now, we'll use the status update in the front-end only
+          is_available: false // Add deactivation by setting is_available to false
         })
         .eq('id', userId);
 
@@ -116,7 +113,7 @@ export const useUserActions = ({ users, setUsers }: UserActionsProps) => {
       // Update the local state
       setUsers(
         users.map(user =>
-          user.id === userId ? { ...user, status: "banned" } : user
+          user.id === userId ? { ...user, status: "banned", isActive: false } : user
         )
       );
       
@@ -134,9 +131,89 @@ export const useUserActions = ({ users, setUsers }: UserActionsProps) => {
     }
   };
 
+  const handleActivateUser = async (userId: string) => {
+    try {
+      // Activate the user by setting is_available to true
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_available: true })
+        .eq('id', userId);
+
+      if (error) {
+        console.error("Error activating user:", error);
+        toast({
+          title: "Error",
+          description: "Failed to activate user. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update the local state
+      setUsers(
+        users.map(user =>
+          user.id === userId ? { ...user, isActive: true } : user
+        )
+      );
+      
+      toast({
+        title: "User activated",
+        description: "User has been activated successfully.",
+      });
+    } catch (error) {
+      console.error("Exception activating user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to activate user. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeactivateUser = async (userId: string) => {
+    try {
+      // Deactivate the user by setting is_available to false
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_available: false })
+        .eq('id', userId);
+
+      if (error) {
+        console.error("Error deactivating user:", error);
+        toast({
+          title: "Error",
+          description: "Failed to deactivate user. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update the local state
+      setUsers(
+        users.map(user =>
+          user.id === userId ? { ...user, isActive: false } : user
+        )
+      );
+      
+      toast({
+        title: "User deactivated",
+        description: "User has been deactivated successfully.",
+      });
+    } catch (error) {
+      console.error("Exception deactivating user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to deactivate user. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     handleVerifyUser,
     handleRejectUser,
-    handleBanUser
+    handleBanUser,
+    handleActivateUser,
+    handleDeactivateUser
   };
 };

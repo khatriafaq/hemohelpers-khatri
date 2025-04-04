@@ -52,6 +52,7 @@ export const useUsers = () => {
             bloodType: profile.blood_type || "Unknown",
             location: profile.location || "Unknown",
             status: status,
+            isActive: profile.is_available === true, // Add isActive status
             registeredDate: new Date(profile.created_at).toLocaleDateString('en-US', {
               year: 'numeric', 
               month: 'long', 

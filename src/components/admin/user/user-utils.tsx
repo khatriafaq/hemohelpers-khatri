@@ -15,3 +15,19 @@ export const renderStatusBadge = (status: string) => {
       return <Badge variant="outline">{status}</Badge>;
   }
 };
+
+export const renderActiveBadge = (isActive: boolean) => {
+  return isActive 
+    ? <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>
+    : <Badge variant="outline" className="bg-gray-100 text-gray-800 hover:bg-gray-100">Inactive</Badge>;
+};
+
+export const filterUsersByStatus = (users: any[], status: string | null) => {
+  if (!status) return users;
+  return users.filter(user => user.status === status);
+};
+
+export const filterUsersByActive = (users: any[], active: boolean | null) => {
+  if (active === null) return users;
+  return users.filter(user => user.isActive === active);
+};

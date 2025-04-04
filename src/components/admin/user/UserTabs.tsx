@@ -10,6 +10,8 @@ interface UserTabsProps {
   onVerifyUser: (userId: string) => void;
   onRejectUser: (userId: string) => void;
   onBanUser: (userId: string) => void;
+  onActivateUser: (userId: string) => void;
+  onDeactivateUser: (userId: string) => void;
 }
 
 const UserTabs = ({
@@ -18,7 +20,9 @@ const UserTabs = ({
   onViewUser,
   onVerifyUser,
   onRejectUser,
-  onBanUser
+  onBanUser,
+  onActivateUser,
+  onDeactivateUser
 }: UserTabsProps) => {
   if (loading) {
     return <div className="text-center py-8">Loading users...</div>;
@@ -40,6 +44,8 @@ const UserTabs = ({
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
+          onActivateUser={onActivateUser}
+          onDeactivateUser={onDeactivateUser}
         />
       </TabsContent>
       
@@ -50,6 +56,8 @@ const UserTabs = ({
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
+          onActivateUser={onActivateUser}
+          onDeactivateUser={onDeactivateUser}
           filter="pending"
         />
       </TabsContent>
@@ -61,6 +69,8 @@ const UserTabs = ({
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
+          onActivateUser={onActivateUser}
+          onDeactivateUser={onDeactivateUser}
           filter="verified"
         />
       </TabsContent>
@@ -72,6 +82,8 @@ const UserTabs = ({
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
+          onActivateUser={onActivateUser}
+          onDeactivateUser={onDeactivateUser}
           filter="rejected"
         />
       </TabsContent>

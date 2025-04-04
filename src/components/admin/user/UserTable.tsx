@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Eye, UserCheck, UserX, X } from "lucide-react";
+import { Eye, Power, PowerOff, UserCheck, UserX, X } from "lucide-react";
 import { renderStatusBadge } from "./user-utils";
 
 interface UserTableProps {
@@ -13,6 +13,8 @@ interface UserTableProps {
   onVerifyUser: (userId: string) => void;
   onRejectUser: (userId: string) => void;
   onBanUser: (userId: string) => void;
+  onActivateUser: (userId: string) => void;
+  onDeactivateUser: (userId: string) => void;
   filter?: string;
 }
 
@@ -22,6 +24,8 @@ const UserTable = ({
   onVerifyUser, 
   onRejectUser, 
   onBanUser,
+  onActivateUser,
+  onDeactivateUser,
   filter
 }: UserTableProps) => {
   const filteredUsers = filter 
@@ -37,6 +41,7 @@ const UserTable = ({
             <TableHead>Blood Type</TableHead>
             <TableHead>Location</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Active</TableHead>
             <TableHead>Registered</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -65,6 +70,14 @@ const UserTable = ({
                 </TableCell>
                 <TableCell>{user.location}</TableCell>
                 <TableCell>{renderStatusBadge(user.status)}</TableCell>
+                <TableCell>
+                  <Badge 
+                    variant={user.isActive ? "default" : "outline"}
+                    className={user.isActive ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
+                  >
+                    {user.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </TableCell>
                 <TableCell>{user.registeredDate}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
@@ -109,6 +122,28 @@ const UserTable = ({
                       </Button>
                     )}
                     
+                    {user.isActive ? (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        onClick={() => onDeactivateUser(user.id)}
+                        title="Deactivate user"
+                      >
+                        <PowerOff className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => onActivateUser(user.id)}
+                        title="Activate user"
+                      >
+                        <Power className="h-4 w-4" />
+                      </Button>
+                    )}
+                    
                     {user.status !== "banned" && (
                       <Button 
                         variant="ghost" 
@@ -125,7 +160,7 @@ const UserTable = ({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                 {filter ? `No ${filter} users found.` : 'No users found matching your search criteria.'}
               </TableCell>
             </TableRow>

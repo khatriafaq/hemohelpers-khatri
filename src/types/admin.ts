@@ -14,6 +14,7 @@ export interface User {
   documents: string[];
   phone?: string;
   age?: number | string;
+  isActive: boolean; // Add isActive field
 }
 
 // Request Management types

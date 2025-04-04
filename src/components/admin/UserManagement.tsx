@@ -12,7 +12,14 @@ import { useUserActions } from "./user/UserActions";
 
 const UserManagement = () => {
   const { users, setUsers, loading, searchQuery, setSearchQuery, filteredUsers } = useUsers();
-  const { handleVerifyUser, handleRejectUser, handleBanUser } = useUserActions({ users, setUsers });
+  const { 
+    handleVerifyUser, 
+    handleRejectUser, 
+    handleBanUser,
+    handleActivateUser,
+    handleDeactivateUser 
+  } = useUserActions({ users, setUsers });
+  
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -29,7 +36,7 @@ const UserManagement = () => {
             <div>
               <CardTitle>User Management</CardTitle>
               <CardDescription>
-                Verify, reject, or ban users from the platform.
+                Verify, reject, or ban users from the platform. Activate or deactivate user accounts.
               </CardDescription>
             </div>
             <UserFilters 
@@ -46,6 +53,8 @@ const UserManagement = () => {
             onVerifyUser={handleVerifyUser}
             onRejectUser={handleRejectUser}
             onBanUser={handleBanUser}
+            onActivateUser={handleActivateUser}
+            onDeactivateUser={handleDeactivateUser}
           />
         </CardContent>
       </Card>
