@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import BloodDropAvatar from "@/components/ui/BloodDropAvatar";
 
 interface DonationRequestDialogProps {
   donorName: string;
@@ -46,36 +46,35 @@ export default function DonationRequestDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-4 bg-secondary/50 p-3 rounded-lg">
-            <div className="flex h-10 w-10 rounded-full bg-blood items-center justify-center text-white font-semibold">
-              {bloodType}
-            </div>
+            <BloodDropAvatar 
+              bloodType={bloodType} 
+              size="sm"
+              name={donorName}
+            />
             <div>
-              <p className="font-medium">{bloodType} Blood Type</p>
-              <p className="text-sm text-muted-foreground">Compatible with your request</p>
+              <div className="font-medium">{donorName}</div>
+              <div className="text-sm text-muted-foreground">Blood Type: {bloodType}</div>
             </div>
           </div>
           
-          <Textarea
-            placeholder="Explain your need for blood donation..."
-            className="min-h-[120px]"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Mail className="h-4 w-4 mr-2" />
-            <span>Donor will be notified by email</span>
+          <div className="space-y-2">
+            <label htmlFor="message" className="text-sm font-medium">
+              Your message
+            </label>
+            <Textarea
+              id="message"
+              placeholder="Explain your situation and when you need the donation..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="min-h-[120px]"
+            />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSendRequest} 
-            className="bg-blood hover:bg-blood/90 text-white"
-            disabled={!message.trim()}
-          >
+          <Button onClick={handleSendRequest} disabled={!message.trim()}>
             Send Request
           </Button>
         </DialogFooter>

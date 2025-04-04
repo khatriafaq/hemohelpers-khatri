@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 
 interface DonorInfoProps {
   name: string;
@@ -15,11 +15,15 @@ export default function DonorInfo({ name, city, region, distance, orakh }: Donor
       {orakh && (
         <div className="text-sm text-medical-blue font-medium">{orakh}</div>
       )}
-      <div className="text-sm text-muted-foreground flex items-center">
-        <MapPin className="h-3.5 w-3.5 mr-1" />
-        {city}{region ? `, ${region}` : ""}
-        <span className="mx-1.5">•</span>
-        <span>{distance} km away</span>
+      <div className="text-sm text-muted-foreground flex flex-col">
+        <div className="flex items-center">
+          <MapPin className="h-3.5 w-3.5 mr-1" />
+          {city}{region ? `, ${region}` : ""}
+        </div>
+        <div className="mt-0.5 flex items-center">
+          <Navigation className="h-3.5 w-3.5 mr-1" />
+          {distance} km away
+        </div>
       </div>
     </div>
   );

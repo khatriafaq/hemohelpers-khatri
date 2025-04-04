@@ -1,9 +1,9 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DonorCard from "@/components/DonorCard";
 import { Donor } from "@/hooks/useDonors";
+import { useToast } from "@/hooks/use-toast";
 
 interface DonorResultsProps {
   isLoading: boolean;
@@ -16,6 +16,16 @@ export default function DonorResults({
   filteredDonors,
   clearFilters 
 }: DonorResultsProps) {
+  const { toast } = useToast();
+
+  const handleContactDonor = (donor: Donor) => {
+    // In a real app, this would open a contact form or modal
+    toast({
+      title: "Contact Donor",
+      description: `You are contacting ${donor.name} (${donor.bloodType})`,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -34,7 +44,11 @@ export default function DonorResults({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredDonors.map((donor) => (
-          <DonorCard key={donor.id} donor={donor} />
+          <DonorCard 
+            key={donor.id} 
+            donor={donor} 
+            onContact={handleContactDonor}
+          />
         ))}
       </div>
     );

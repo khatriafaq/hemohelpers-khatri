@@ -52,8 +52,11 @@ export const useDonors = () => {
           
           // Transform the data to match our Donor interface
           const transformedDonors = data.map(profile => {
-            // Calculate a mock distance - in a real app this would be based on geolocation
             const mockDistance = Math.floor(Math.random() * 20) + 1;
+            
+            // Generate a random date within the last 100 days for testing
+            const mockLastDonation = new Date();
+            mockLastDonation.setDate(mockLastDonation.getDate() - Math.floor(Math.random() * 100));
             
             return {
               id: profile.id,
@@ -61,9 +64,9 @@ export const useDonors = () => {
               bloodType: profile.blood_type || "O+",
               city: profile.location || "Unknown Location",
               region: profile.region || "",
-              isAvailable: profile.is_available !== false, // Default to true if undefined
-              distance: mockDistance, // Ensuring this is always set
-              lastDonation: undefined,
+              isAvailable: profile.is_available !== false,
+              distance: mockDistance,
+              lastDonation: mockLastDonation.toISOString(),
               orakh: profile.orakh || ""
             };
           });
