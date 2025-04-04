@@ -15,7 +15,6 @@ interface UserTableProps {
   onBanUser: (userId: string) => void;
   onActivateUser: (userId: string) => void;
   onDeactivateUser: (userId: string) => void;
-  filter?: string;
 }
 
 const UserTable = ({ 
@@ -25,13 +24,11 @@ const UserTable = ({
   onRejectUser, 
   onBanUser,
   onActivateUser,
-  onDeactivateUser,
-  filter
+  onDeactivateUser
 }: UserTableProps) => {
-  const filteredUsers = filter 
-    ? users.filter(user => user.status === filter) 
-    : users;
-
+  // Add debug information
+  console.log(`UserTable received ${users?.length || 0} users to display`);
+  
   return (
     <div className="rounded-md border">
       <Table>
@@ -47,14 +44,14 @@ const UserTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
+          {users && users.length > 0 ? (
+            users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
                       <AvatarFallback className="bg-secondary text-secondary-foreground">
-                        {user.name.split(" ").map(part => part[0]).join("")}
+                        {user.name.split(" ").map(part => part[0]).join("").substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
@@ -161,7 +158,7 @@ const UserTable = ({
           ) : (
             <TableRow>
               <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                {filter ? `No ${filter} users found.` : 'No users found matching your search criteria.'}
+                {loading ? "Loading users..." : "No users found matching your search criteria."}
               </TableCell>
             </TableRow>
           )}

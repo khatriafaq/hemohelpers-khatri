@@ -28,6 +28,12 @@ const UserManagement = () => {
     setShowDialog(true);
   };
 
+  // Add debug info to help troubleshoot
+  console.log("UserManagement rendered with", users.length, "total users and", filteredUsers.length, "filtered users");
+  if (users.length === 0 && !loading) {
+    console.log("No users found in UserManagement component. Check Supabase connection and queries.");
+  }
+
   return (
     <div className="space-y-6">
       <Card>
