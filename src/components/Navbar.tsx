@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -34,7 +33,7 @@ export const Navbar = () => {
   if (user) {
     navLinks.push(
       { title: "Profile", href: "/profile", icon: <User className="h-4 w-4" /> },
-      { title: "Search", href: "/search", icon: <Search className="h-4 w-4" /> }
+      { title: "Donors", href: "/search", icon: <Search className="h-4 w-4" /> }
     );
     
     if (isAdmin) {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -31,11 +30,12 @@ export const useDonors = () => {
       console.log("Fetching all available donors...");
       
       try {
-        // Query all profiles that are available to be donors
+        // Query all profiles that are available to be donors and are verified
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, blood_type, location, region, is_available')
           .eq('is_available', true) // Only fetch available donors
+          .eq('is_verified', true) // Only fetch verified donors
           .order('created_at', { ascending: false });
           
         if (error) {
