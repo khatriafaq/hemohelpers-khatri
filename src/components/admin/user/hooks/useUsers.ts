@@ -19,8 +19,7 @@ export const useUsers = () => {
         // Fetch all users from Supabase without any filtering
         const { data, error } = await supabase
           .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*');
 
         if (error) {
           console.error("Error fetching users:", error);

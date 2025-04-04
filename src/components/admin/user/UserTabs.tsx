@@ -2,6 +2,7 @@
 import { User } from "@/types/admin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserTable from "./UserTable";
+import { filterUsersByStatus } from "./user-utils";
 
 interface UserTabsProps {
   loading: boolean;
@@ -51,40 +52,37 @@ const UserTabs = ({
       
       <TabsContent value="pending" className="mt-0">
         <UserTable 
-          users={filteredUsers}
+          users={filterUsersByStatus(filteredUsers, "pending")}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
           onActivateUser={onActivateUser}
           onDeactivateUser={onDeactivateUser}
-          filter="pending"
         />
       </TabsContent>
       
       <TabsContent value="verified" className="mt-0">
         <UserTable 
-          users={filteredUsers}
+          users={filterUsersByStatus(filteredUsers, "verified")}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
           onActivateUser={onActivateUser}
           onDeactivateUser={onDeactivateUser}
-          filter="verified"
         />
       </TabsContent>
       
       <TabsContent value="rejected" className="mt-0">
         <UserTable 
-          users={filteredUsers}
+          users={filterUsersByStatus(filteredUsers, "rejected")}
           onViewUser={onViewUser}
           onVerifyUser={onVerifyUser}
           onRejectUser={onRejectUser}
           onBanUser={onBanUser}
           onActivateUser={onActivateUser}
           onDeactivateUser={onDeactivateUser}
-          filter="rejected"
         />
       </TabsContent>
     </Tabs>
