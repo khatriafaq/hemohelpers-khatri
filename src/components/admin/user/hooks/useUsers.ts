@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
@@ -59,10 +58,18 @@ export const useUsers = () => {
         const formattedUsers = data.map(profile => {
           // Determine status based on verification state
           let status: "verified" | "pending" | "rejected" | "banned" = "pending";
+          
+          // If is_verified is explicitly set to true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
-          } else if (profile.is_verified === false) {
+          } 
+          // If is_verified is explicitly set to false, user is rejected
+          else if (profile.is_verified === false) {
             status = "rejected";
+          }
+          // If is_verified is null or undefined, user is pending (new user)
+          else {
+            status = "pending";
           }
           
           return {

@@ -1,10 +1,11 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { User } from "@/types/admin";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Shield, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 
 import UserDetailsDialog from "./user/dialogs/UserDetailsDialog";
 import UserFilters from "./user/UserFilters";
@@ -21,7 +22,10 @@ const UserManagement = () => {
     handleRejectUser, 
     handleBanUser,
     handleActivateUser,
-    handleDeactivateUser 
+    handleDeactivateUser,
+    testUpdateUser,
+    checkRLSPolicies,
+    directUpdateUser
   } = useUserActions({ users, setUsers });
   
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -30,6 +34,19 @@ const UserManagement = () => {
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
     setShowDialog(true);
+  };
+
+  const handleDirectUpdate = () => {
+    if (filteredUsers.length > 0) {
+      const user = filteredUsers[0];
+      directUpdateUser(user.id, user.email);
+    } else {
+      toast({
+        title: "Error",
+        description: "No users available to update.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Add debug info to help troubleshoot
@@ -63,10 +80,31 @@ const UserManagement = () => {
                 Verify, reject, or ban users from the platform. Activate or deactivate user accounts.
               </CardDescription>
             </div>
-            <UserFilters 
-              searchQuery={searchQuery} 
-              setSearchQuery={setSearchQuery} 
-            />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <UserFilters 
+                searchQuery={searchQuery} 
+                setSearchQuery={setSearchQuery} 
+              />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={checkRLSPolicies}
+                className="flex items-center"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Check RLS
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDirectUpdate}
+                className="flex items-center"
+                disabled={loading || filteredUsers.length === 0}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Direct Update
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -93,6 +131,7 @@ const UserManagement = () => {
               onBanUser={handleBanUser}
               onActivateUser={handleActivateUser}
               onDeactivateUser={handleDeactivateUser}
+              onTestUpdateUser={testUpdateUser}
             />
           )}
         </CardContent>
