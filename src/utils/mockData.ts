@@ -11,7 +11,8 @@ export const mockUsers: User[] = [
     location: "San Francisco, CA",
     status: "verified",
     registeredDate: "April 15, 2023",
-    documents: ["ID Card", "Blood Test Report"]
+    documents: ["ID Card", "Blood Test Report"],
+    isActive: true
   },
   {
     id: "2",
@@ -21,7 +22,8 @@ export const mockUsers: User[] = [
     location: "Oakland, CA",
     status: "pending",
     registeredDate: "June 22, 2023",
-    documents: ["ID Card", "Medical Certificate"]
+    documents: ["ID Card", "Medical Certificate"],
+    isActive: true
   },
   {
     id: "3",
@@ -31,7 +33,8 @@ export const mockUsers: User[] = [
     location: "San Jose, CA",
     status: "rejected",
     registeredDate: "May 10, 2023",
-    documents: ["Driver's License"]
+    documents: ["Driver's License"],
+    isActive: false
   },
   {
     id: "4",
@@ -41,7 +44,8 @@ export const mockUsers: User[] = [
     location: "Palo Alto, CA",
     status: "pending",
     registeredDate: "July 3, 2023",
-    documents: ["Passport", "Blood Test Report"]
+    documents: ["Passport", "Blood Test Report"],
+    isActive: true
   },
   {
     id: "5",
@@ -51,7 +55,8 @@ export const mockUsers: User[] = [
     location: "Berkeley, CA",
     status: "verified",
     registeredDate: "March 28, 2023",
-    documents: ["ID Card", "Medical Certificate"]
+    documents: ["ID Card", "Medical Certificate"],
+    isActive: true
   }
 ];
 
