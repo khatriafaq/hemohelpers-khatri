@@ -66,7 +66,7 @@ export default function DonorSearchFilters({
               Filters
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80" align="end">
+          <PopoverContent className="w-[90vw] max-w-md sm:w-80 p-4" align="end">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Blood Type</Label>
@@ -111,16 +111,26 @@ export default function DonorSearchFilters({
                       onSelect={setDate}
                       initialFocus
                       className="rounded-md border pointer-events-auto"
+                      disabled={(date) => date < new Date()}
                     />
                   </div>
                 </div>
               </div>
               
-              <div className="flex justify-between">
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <div className="flex flex-col sm:flex-row justify-between gap-2 pt-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearFilters}
+                  className="w-full sm:w-auto"
+                >
                   Clear Filters
                 </Button>
-                <Button size="sm" onClick={() => setIsFilterOpen(false)}>
+                <Button 
+                  size="sm" 
+                  onClick={() => setIsFilterOpen(false)}
+                  className="w-full sm:w-auto"
+                >
                   Apply Filters
                 </Button>
               </div>
