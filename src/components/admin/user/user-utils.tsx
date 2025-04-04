@@ -12,7 +12,7 @@ export const renderStatusBadge = (status: string) => {
     case "banned":
       return <Badge variant="destructive">Banned</Badge>;
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return <Badge variant="outline">{status || "Unknown"}</Badge>;
   }
 };
 
@@ -23,11 +23,13 @@ export const renderActiveBadge = (isActive: boolean) => {
 };
 
 export const filterUsersByStatus = (users: any[], status: string | null) => {
+  if (!users) return [];
   if (!status) return users;
   return users.filter(user => user.status === status);
 };
 
 export const filterUsersByActive = (users: any[], active: boolean | null) => {
+  if (!users) return [];
   if (active === null) return users;
   return users.filter(user => user.isActive === active);
 };

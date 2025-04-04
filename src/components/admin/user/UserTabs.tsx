@@ -25,9 +25,8 @@ const UserTabs = ({
   onActivateUser,
   onDeactivateUser
 }: UserTabsProps) => {
-  if (loading) {
-    return <div className="text-center py-8">Loading users...</div>;
-  }
+  // Add console log to help with debugging
+  console.log(`UserTabs received ${filteredUsers?.length || 0} users, loading: ${loading}`);
 
   return (
     <Tabs defaultValue="all">

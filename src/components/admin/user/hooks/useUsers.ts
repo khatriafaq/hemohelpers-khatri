@@ -16,7 +16,7 @@ export const useUsers = () => {
       try {
         console.log("Fetching all users from profiles table...");
         
-        // Fetch all users from Supabase with more detailed logging
+        // Fetch all users from Supabase without any ordering or filtering
         const { data, error } = await supabase
           .from('profiles')
           .select('*');
@@ -41,7 +41,7 @@ export const useUsers = () => {
 
         console.log(`Fetched ${data.length} users from profiles table:`, data);
 
-        // Transform the data to match our User interface
+        // Transform the data to match our User interface - making sure we handle all possible cases
         const formattedUsers = data.map(profile => {
           // Determine status based on verification state
           let status: "verified" | "pending" | "rejected" | "banned" = "pending";
@@ -50,13 +50,12 @@ export const useUsers = () => {
           } else if (profile.is_verified === false) {
             status = "rejected";
           }
-          // For banned users, we would need additional logic or a separate column
-
-          // Create a user object with all required fields
+          
+          // Create a user object with all required fields and provide fallback values
           return {
             id: profile.id || "unknown-id",
             name: profile.full_name || profile.email?.split('@')[0] || "Anonymous User",
-            email: profile.email || "",
+            email: profile.email || "unknown@email.com",
             bloodType: profile.blood_type || "Unknown",
             location: profile.location || "Unknown",
             status: status,
@@ -94,8 +93,8 @@ export const useUsers = () => {
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.bloodType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.location.toLowerCase().includes(searchQuery.toLowerCase())
+    (user.bloodType && user.bloodType.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (user.location && user.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return {
