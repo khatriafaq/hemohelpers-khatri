@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { User } from "@/types/admin";
-import { Loader2, AlertCircle, Shield, CheckCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
@@ -22,10 +22,7 @@ const UserManagement = () => {
     handleRejectUser, 
     handleBanUser,
     handleActivateUser,
-    handleDeactivateUser,
-    testUpdateUser,
-    checkRLSPolicies,
-    directUpdateUser
+    handleDeactivateUser
   } = useUserActions({ users, setUsers });
   
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -34,19 +31,6 @@ const UserManagement = () => {
   const handleViewUser = (user: User) => {
     setSelectedUser(user);
     setShowDialog(true);
-  };
-
-  const handleDirectUpdate = () => {
-    if (filteredUsers.length > 0) {
-      const user = filteredUsers[0];
-      directUpdateUser(user.id, user.email);
-    } else {
-      toast({
-        title: "Error",
-        description: "No users available to update.",
-        variant: "destructive",
-      });
-    }
   };
 
   // Add debug info to help troubleshoot
@@ -70,13 +54,13 @@ const UserManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
+    <div className="space-y-6 p-4">
+      <Card className="w-full">
+        <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-2xl">User Management</CardTitle>
+              <CardDescription className="text-base mt-1">
                 Verify, reject, or ban users from the platform. Activate or deactivate user accounts.
               </CardDescription>
             </div>
@@ -85,29 +69,10 @@ const UserManagement = () => {
                 searchQuery={searchQuery} 
                 setSearchQuery={setSearchQuery} 
               />
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={checkRLSPolicies}
-                className="flex items-center"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Check RLS
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleDirectUpdate}
-                className="flex items-center"
-                disabled={loading || filteredUsers.length === 0}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Direct Update
-              </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
@@ -131,7 +96,6 @@ const UserManagement = () => {
               onBanUser={handleBanUser}
               onActivateUser={handleActivateUser}
               onDeactivateUser={handleDeactivateUser}
-              onTestUpdateUser={testUpdateUser}
             />
           )}
         </CardContent>

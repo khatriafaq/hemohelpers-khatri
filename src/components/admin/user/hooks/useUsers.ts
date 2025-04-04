@@ -63,6 +63,10 @@ export const useUsers = () => {
           if (profile.is_verified === true) {
             status = "verified";
           } 
+          // If is_verified is explicitly set to false and is_available is false, user is banned
+          else if (profile.is_verified === false && profile.is_available === false) {
+            status = "banned";
+          }
           // If is_verified is explicitly set to false, user is rejected
           else if (profile.is_verified === false) {
             status = "rejected";
@@ -71,6 +75,13 @@ export const useUsers = () => {
           else {
             status = "pending";
           }
+          
+          // Log the status determination for debugging
+          console.log(`User ${profile.id} status determination:`, {
+            is_verified: profile.is_verified,
+            is_available: profile.is_available,
+            determined_status: status
+          });
           
           return {
             id: profile.id || "unknown-id",

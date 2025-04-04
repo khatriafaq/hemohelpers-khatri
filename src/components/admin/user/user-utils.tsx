@@ -1,7 +1,7 @@
-
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { User } from "@/types/admin";
 
 export const renderStatusBadge = (status: string) => {
   switch (status) {
@@ -24,13 +24,28 @@ export const renderActiveBadge = (isActive: boolean) => {
     : <Badge variant="outline" className="bg-gray-100 text-gray-800 hover:bg-gray-100">Inactive</Badge>;
 };
 
-export const filterUsersByStatus = (users: any[], status: string | null) => {
+export const filterUsersByStatus = (users: User[], status: string | null) => {
   if (!users) return [];
-  if (!status) return users;
-  return users.filter(user => user.status === status);
+  if (!status || status === "all") return users;
+  
+  // Log the filtering operation for debugging
+  console.log(`Filtering users by status: ${status}`, {
+    totalUsers: users.length,
+    statusCounts: users.reduce((acc, user) => {
+      acc[user.status] = (acc[user.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>)
+  });
+  
+  const filteredUsers = users.filter(user => user.status === status);
+  
+  // Log the filtering results
+  console.log(`Filtered users count: ${filteredUsers.length}`);
+  
+  return filteredUsers;
 };
 
-export const filterUsersByActive = (users: any[], active: boolean | null) => {
+export const filterUsersByActive = (users: User[], active: boolean | null) => {
   if (!users) return [];
   if (active === null) return users;
   return users.filter(user => user.isActive === active);

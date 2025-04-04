@@ -1,4 +1,3 @@
-
 import { User } from "@/types/admin";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -32,17 +31,17 @@ const UserTable = ({
   console.log(`UserTable received ${users?.length || 0} users to display, loading: ${loading}`);
   
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Blood Type</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Active</TableHead>
-            <TableHead>Registered</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="w-[250px]">User</TableHead>
+            <TableHead className="w-[100px]">Blood Type</TableHead>
+            <TableHead className="w-[150px]">Location</TableHead>
+            <TableHead className="w-[120px]">Status</TableHead>
+            <TableHead className="w-[100px]">Active</TableHead>
+            <TableHead className="w-[120px]">Registered</TableHead>
+            <TableHead className="text-right w-[150px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -149,6 +148,7 @@ const UserTable = ({
                         size="icon"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => onBanUser(user.id)}
+                        title="Ban user"
                       >
                         <UserX className="h-4 w-4" />
                       </Button>
@@ -159,8 +159,8 @@ const UserTable = ({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                {loading ? "Loading users..." : "No users found matching your search criteria."}
+              <TableCell colSpan={7} className="h-24 text-center">
+                No users found.
               </TableCell>
             </TableRow>
           )}
