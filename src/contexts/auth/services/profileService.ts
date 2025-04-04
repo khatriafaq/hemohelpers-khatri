@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export const fetchUserProfile = async (userId: string) => {
@@ -23,7 +22,11 @@ export const fetchUserProfile = async (userId: string) => {
         
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
-          .insert([{ id: userId, email }])
+          .insert([{ 
+            id: userId, 
+            email,
+            is_available: true
+          }])
           .select()
           .single();
           
