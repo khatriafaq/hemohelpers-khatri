@@ -12,6 +12,7 @@ export interface Donor {
   distance: number;
   lastDonation?: string;
   avatar?: string;
+  orakh?: string;
 }
 
 export const useDonors = () => {
@@ -33,7 +34,7 @@ export const useDonors = () => {
         // Query all profiles that are available to be donors and are verified
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, blood_type, location, region, is_available')
+          .select('id, full_name, blood_type, location, region, is_available, orakh')
           .eq('is_available', true) // Only fetch available donors
           .eq('is_verified', true) // Only fetch verified donors
           .order('created_at', { ascending: false });
@@ -62,7 +63,8 @@ export const useDonors = () => {
               region: profile.region || "",
               isAvailable: profile.is_available !== false, // Default to true if undefined
               distance: mockDistance, // Ensuring this is always set
-              lastDonation: undefined
+              lastDonation: undefined,
+              orakh: profile.orakh || ""
             };
           });
           

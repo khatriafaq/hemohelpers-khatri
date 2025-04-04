@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -20,6 +19,7 @@ interface DonorCardProps {
     distance: number;
     avatar?: string;
     lastDonation?: string;
+    orakh?: string;
   };
 }
 
@@ -37,6 +37,7 @@ export default function DonorCard({ donor }: DonorCardProps) {
               city={donor.city}
               region={donor.region}
               distance={donor.distance}
+              orakh={donor.orakh}
             />
           </div>
           

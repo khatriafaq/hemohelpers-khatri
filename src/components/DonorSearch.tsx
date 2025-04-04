@@ -1,4 +1,3 @@
-
 import { MapPin } from "lucide-react";
 import { useDonors } from "@/hooks/useDonors";
 import DonorSearchFilters from "@/components/donor/DonorSearchFilters";
