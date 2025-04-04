@@ -32,7 +32,24 @@ export default function DonorBadges({ bloodType, isAvailable, lastDonation }: Do
     }
   };
 
+  // Calculate days since last donation
+  const getDaysSinceLastDonation = (dateString?: string) => {
+    if (!dateString) return null;
+    
+    try {
+      const lastDonationDate = new Date(dateString);
+      const today = new Date();
+      const diffTime = Math.abs(today.getTime() - lastDonationDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (error) {
+      console.error("Error calculating days since last donation:", error);
+      return null;
+    }
+  };
+
   const formattedLastDonation = formatLastDonationDate(lastDonation);
+  const daysSinceLastDonation = getDaysSinceLastDonation(lastDonation);
 
   return (
     <div className="flex flex-wrap items-center gap-3 mt-3">
@@ -48,10 +65,12 @@ export default function DonorBadges({ bloodType, isAvailable, lastDonation }: Do
             <Button 
               variant="outline" 
               size="sm" 
-              className="rounded-full h-8 text-xs gap-1 flex items-center justify-center min-w-[120px]"
+              className="rounded-full h-8 text-xs gap-1 flex items-center justify-center min-w-[160px]"
             >
               <Clock className="h-3.5 w-3.5" />
-              Last Donation
+              {daysSinceLastDonation !== null 
+                ? `${daysSinceLastDonation} days since last donation` 
+                : "Last Donation"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3">
