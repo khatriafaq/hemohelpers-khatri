@@ -1,3 +1,4 @@
+
 import { MapPin } from "lucide-react";
 import { useDonors } from "@/hooks/useDonors";
 import DonorSearchFilters from "@/components/donor/DonorSearchFilters";
@@ -15,6 +16,7 @@ export default function DonorSearch() {
     setDate,
     filteredDonors,
     isLoading,
+    error,
     clearFilters
   } = useDonors();
   
@@ -39,9 +41,10 @@ export default function DonorSearch() {
       </div>
       
       <DonorResults
+        donors={filteredDonors}
         isLoading={isLoading}
-        filteredDonors={filteredDonors}
-        clearFilters={clearFilters}
+        error={error}
+        onClearFilters={clearFilters}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,12 +23,14 @@ export const useDonors = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Fetch all donors from the database regardless of current user
   useEffect(() => {
     const fetchDonors = async () => {
       setIsLoading(true);
+      setError(null);
       console.log("Fetching all available donors...");
       
       try {
@@ -41,6 +44,7 @@ export const useDonors = () => {
           
         if (error) {
           console.error("Error fetching donors:", error);
+          setError("Failed to load donors. Please try again.");
           toast({
             title: "Error",
             description: "Failed to load donors. Please try again.",
@@ -75,6 +79,7 @@ export const useDonors = () => {
         }
       } catch (error) {
         console.error("Exception fetching donors:", error);
+        setError("Failed to load donors. Please try again.");
         toast({
           title: "Error",
           description: "Failed to load donors. Please try again.",
@@ -140,6 +145,7 @@ export const useDonors = () => {
     donors,
     filteredDonors,
     isLoading,
+    error,
     clearFilters
   };
 };

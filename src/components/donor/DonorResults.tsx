@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import DonorCard from "./DonorCard";
-import { Donor } from "@/types/admin";
 import EmptyState from "./EmptyState";
+import { Donor } from "@/hooks/useDonors";
 
 interface DonorResultsProps {
   donors: Donor[];
@@ -55,7 +55,10 @@ const DonorResults = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {donors.map((donor) => (
-        <DonorCard key={donor.id} donor={donor} />
+        <DonorCard 
+          key={donor.id} 
+          donor={donor} 
+        />
       ))}
       
       {/* Show loader at bottom when loading more */}
