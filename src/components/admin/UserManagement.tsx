@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
@@ -5,7 +6,6 @@ import { User } from "@/types/admin";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 
 import UserDetailsDialog from "./user/dialogs/UserDetailsDialog";
 import UserFilters from "./user/UserFilters";
