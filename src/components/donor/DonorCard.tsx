@@ -1,9 +1,12 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail } from "lucide-react";
 import DonorInfo from "./DonorInfo";
 import DonorBadges from "./DonorBadges";
 import BloodDropAvatar from "@/components/ui/BloodDropAvatar";
+import { useState } from "react";
+import DonationRequestDialog from "./DonationRequestDialog";
 
 interface DonorCardProps {
   donor: {
@@ -19,10 +22,16 @@ interface DonorCardProps {
     orakh?: string;
     distance: number;
   };
-  onContact: (donor: DonorCardProps["donor"]) => void;
 }
 
-export default function DonorCard({ donor, onContact }: DonorCardProps) {
+export default function DonorCard({ donor }: DonorCardProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Convert lastDonation string to Date if it exists
+  const lastDonationDate = donor.lastDonationDate instanceof Date 
+    ? donor.lastDonationDate 
+    : undefined;
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-6">
@@ -30,7 +39,7 @@ export default function DonorCard({ donor, onContact }: DonorCardProps) {
           <div className="flex flex-col items-center gap-4">
             <BloodDropAvatar 
               bloodType={donor.bloodType} 
-              lastDonationDate={donor.lastDonationDate}
+              lastDonationDate={lastDonationDate}
               size="lg"
             />
             <DonorBadges 
@@ -71,11 +80,18 @@ export default function DonorCard({ donor, onContact }: DonorCardProps) {
             
             <Button 
               className="w-full md:w-auto" 
-              onClick={() => onContact(donor)}
+              onClick={() => setIsDialogOpen(true)}
               disabled={!donor.isAvailable}
             >
               {donor.isAvailable ? "Contact Donor" : "Not Available"}
             </Button>
+            
+            <DonationRequestDialog 
+              donorName={donor.name}
+              bloodType={donor.bloodType}
+              isOpen={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+            />
           </div>
         </div>
       </CardContent>
