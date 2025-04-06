@@ -34,7 +34,7 @@ export const useAuthentication = () => {
       if (profile) {
         console.log("Setting profile and admin status:", profile, isAdmin);
         setProfile(profile);
-        setIsAdmin(isAdmin);
+        setIsAdmin(Boolean(isAdmin));
       } else {
         console.log("No profile found, setting null");
         setProfile(null);

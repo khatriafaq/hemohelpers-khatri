@@ -7,9 +7,14 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 import UserManagement from "@/components/admin/UserManagement";
 import RequestManagement from "@/components/admin/RequestManagement";
 import { ShieldCheck, Users, Droplet } from "lucide-react";
+import { useAuth } from "@/contexts/auth";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { isAdmin } = useAuth();
+
+  // Debug output
+  console.log("Admin page rendered, isAdmin:", isAdmin);
 
   // Scroll to top on page load
   useEffect(() => {

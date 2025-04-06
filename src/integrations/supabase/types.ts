@@ -25,6 +25,7 @@ export type Database = {
           orakh: string | null
           phone: string | null
           region: string | null
+          role: string | null
           show_contact_details: boolean | null
           updated_at: string | null
         }
@@ -43,6 +44,7 @@ export type Database = {
           orakh?: string | null
           phone?: string | null
           region?: string | null
+          role?: string | null
           show_contact_details?: boolean | null
           updated_at?: string | null
         }
@@ -61,6 +63,7 @@ export type Database = {
           orakh?: string | null
           phone?: string | null
           region?: string | null
+          role?: string | null
           show_contact_details?: boolean | null
           updated_at?: string | null
         }
@@ -74,6 +77,13 @@ export type Database = {
       is_admin: {
         Args: {
           user_id: string
+        }
+        Returns: boolean
+      }
+      requester_has_approved_request: {
+        Args: {
+          requester_id: string
+          blood_type: string
         }
         Returns: boolean
       }

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export const fetchUserProfile = async (userId: string) => {
@@ -36,7 +37,7 @@ export const fetchUserProfile = async (userId: string) => {
         }
         
         console.log('New profile created:', newProfile);
-        return { profile: newProfile, isAdmin: newProfile?.is_admin || false };
+        return { profile: newProfile, isAdmin: Boolean(newProfile?.is_admin) };
       }
       
       throw error;
@@ -44,7 +45,7 @@ export const fetchUserProfile = async (userId: string) => {
 
     if (data) {
       console.log("Profile data:", data);
-      return { profile: data, isAdmin: data.is_admin || false };
+      return { profile: data, isAdmin: Boolean(data.is_admin) };
     }
     
     return { profile: null, isAdmin: false };
