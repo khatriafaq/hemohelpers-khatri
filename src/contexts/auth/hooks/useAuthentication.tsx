@@ -17,7 +17,6 @@ export const useAuthentication = () => {
 
   const handleProfileFetch = useCallback(async (userId: string) => {
     console.log("Handling profile fetch for user:", userId);
-    setIsLoading(true);
     
     try {
       const { profile, isAdmin, error } = await fetchUserProfile(userId);
@@ -60,10 +59,8 @@ export const useAuthentication = () => {
         setIsAdmin(false);
         navigate('/');
       } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && currentSession) {
-        // Use setTimeout to prevent potential auth deadlocks
-        setTimeout(() => {
-          handleProfileFetch(currentSession.user.id);
-        }, 0);
+        // Fetch the user profile, but don't set isLoading=false yet (wait for the fetch to complete)
+        handleProfileFetch(currentSession.user.id);
       }
     };
 
@@ -81,6 +78,7 @@ export const useAuthentication = () => {
         console.log("Retrieved session:", data.session);
         
         if (data.session) {
+          setIsLoading(true); // Ensure loading state is true while we process the session
           // Handle session ourselves rather than letting onAuthStateChange do it
           // to ensure we process existing sessions correctly
           handleAuthChange('INITIAL_SESSION', data.session);

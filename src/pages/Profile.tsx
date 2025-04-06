@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { ProfileForm } from "@/components/profile";
 import { useAuth } from "@/contexts/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const { user, profile, isLoading } = useAuth();
@@ -40,6 +41,11 @@ const Profile = () => {
     }
   }, [toast]);
 
+  // Handle refresh
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -71,10 +77,18 @@ const Profile = () => {
               </p>
             </div>
             
-            {profile ? <ProfileForm /> : (
+            {profile ? (
+              <ProfileForm />
+            ) : (
               <div className="text-center p-8 border rounded-lg">
-                <Loader2 className="h-8 w-8 animate-spin text-blood mx-auto mb-4" />
-                <p>Creating your profile...</p>
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-blood mx-auto mb-4" />
+                  <p className="mb-4">Unable to load profile data.</p>
+                  <Button onClick={handleRefresh} variant="outline" className="flex items-center">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
               </div>
             )}
           </div>

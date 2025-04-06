@@ -21,6 +21,7 @@ export const fetchUserProfile = async (userId: string) => {
         const { data: userData } = await supabase.auth.getUser();
         const email = userData?.user?.email || '';
         
+        // Create a new profile with minimal data
         const { data: newProfile, error: createError } = await supabase
           .from('profiles')
           .insert([{ 
@@ -44,13 +45,13 @@ export const fetchUserProfile = async (userId: string) => {
     }
 
     if (data) {
-      console.log("Profile data:", data);
+      console.log("Profile data successfully retrieved:", data);
       return { profile: data, isAdmin: Boolean(data.is_admin) };
     }
     
     return { profile: null, isAdmin: false };
   } catch (error: any) {
-    console.error('Error fetching profile:', error.message);
+    console.error('Error in fetchUserProfile:', error.message);
     return { profile: null, isAdmin: false, error };
   }
 };
