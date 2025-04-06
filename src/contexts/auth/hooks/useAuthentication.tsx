@@ -49,7 +49,7 @@ export const useAuthentication = () => {
     let authListener: { subscription: { unsubscribe: () => void } } | null = null;
     
     // Function to handle auth state change
-    const handleAuthChange = (event: string, currentSession: Session | null) => {
+    const handleAuthChange = async (event: string, currentSession: Session | null) => {
       console.log("Auth state changed:", event, currentSession?.user?.id);
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -59,13 +59,18 @@ export const useAuthentication = () => {
         setIsAdmin(false);
         navigate('/');
       } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && currentSession) {
-        // Fetch the user profile, but don't set isLoading=false yet (wait for the fetch to complete)
-        handleProfileFetch(currentSession.user.id);
+        // Use setTimeout to avoid potential auth deadlocks
+        setTimeout(() => {
+          handleProfileFetch(currentSession.user.id);
+        }, 0);
+      } else {
+        // If no auth event requires profile fetch, make sure we're not in loading state
+        setIsLoading(false);
       }
     };
 
     // Setup auth state listener first
-    const setupAuthListener = () => {
+    const setupAuthListener = async () => {
       const { data } = supabase.auth.onAuthStateChange(handleAuthChange);
       authListener = data;
     };
@@ -103,6 +108,14 @@ export const useAuthentication = () => {
     };
   }, [navigate, handleProfileFetch]);
 
+  // Add a manual profile refresh function
+  const refreshProfile = useCallback(() => {
+    if (user?.id) {
+      setIsLoading(true);
+      handleProfileFetch(user.id);
+    }
+  }, [user, handleProfileFetch]);
+
   return {
     user,
     session,
@@ -110,5 +123,6 @@ export const useAuthentication = () => {
     isLoading,
     isAdmin,
     setProfile,
+    refreshProfile, // Add this new function
   };
 };

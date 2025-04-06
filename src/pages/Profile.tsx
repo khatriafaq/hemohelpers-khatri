@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
 const Profile = () => {
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, isLoading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -43,7 +43,11 @@ const Profile = () => {
 
   // Handle refresh
   const handleRefresh = () => {
-    window.location.reload();
+    refreshProfile();
+    toast({
+      title: "Refreshing Profile",
+      description: "Attempting to reload your profile data...",
+    });
   };
 
   if (isLoading) {

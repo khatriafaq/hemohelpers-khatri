@@ -2,13 +2,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
 const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, isLoading, isAdmin, profile } = useAuth();
+  const { user, isLoading, isAdmin, profile, refreshProfile } = useAuth();
   
   console.log("ProtectedRoute checks:", { 
     isLoading, 
@@ -17,6 +18,14 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
     isVerified: profile?.is_verified,
     requireAdmin
   });
+
+  // Attempt to refresh profile if user is logged in but no profile is available
+  useEffect(() => {
+    if (user && !profile && !isLoading) {
+      console.log("User exists but no profile found, attempting to refresh profile");
+      refreshProfile();
+    }
+  }, [user, profile, isLoading, refreshProfile]);
 
   if (isLoading) {
     return (
@@ -33,7 +42,7 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
     return <Navigate to="/auth/sign-in" replace />;
   }
 
-  // Profile not approved yet
+  // Profile not approved yet - only redirect if we have actually loaded the profile
   if (profile && !profile.is_verified && !isAdmin) {
     console.log("Profile not verified, redirecting to pending approval");
     return <Navigate to="/auth/pending-approval" replace />;

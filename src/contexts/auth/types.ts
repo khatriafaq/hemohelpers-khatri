@@ -20,4 +20,5 @@ export interface AuthContextType {
     error: any | null;
     data: any | null;
   }>;
+  refreshProfile: () => void;  // Add this new function type
 }

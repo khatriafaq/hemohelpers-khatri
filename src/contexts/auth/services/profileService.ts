@@ -3,6 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const fetchUserProfile = async (userId: string) => {
   try {
+    if (!userId) {
+      console.error("No user ID provided to fetchUserProfile");
+      return { profile: null, isAdmin: false, error: new Error("No user ID provided") };
+    }
+
     console.log("Fetching profile for user:", userId);
     const { data, error } = await supabase
       .from('profiles')
@@ -34,14 +39,14 @@ export const fetchUserProfile = async (userId: string) => {
           
         if (createError) {
           console.error('Error creating profile:', createError);
-          throw createError;
+          return { profile: null, isAdmin: false, error: createError };
         }
         
         console.log('New profile created:', newProfile);
         return { profile: newProfile, isAdmin: Boolean(newProfile?.is_admin) };
       }
       
-      throw error;
+      return { profile: null, isAdmin: false, error };
     }
 
     if (data) {
@@ -49,7 +54,7 @@ export const fetchUserProfile = async (userId: string) => {
       return { profile: data, isAdmin: Boolean(data.is_admin) };
     }
     
-    return { profile: null, isAdmin: false };
+    return { profile: null, isAdmin: false, error: new Error("No profile data returned") };
   } catch (error: any) {
     console.error('Error in fetchUserProfile:', error.message);
     return { profile: null, isAdmin: false, error };
@@ -58,6 +63,11 @@ export const fetchUserProfile = async (userId: string) => {
 
 export const updateUserProfile = async (userId: string, data: any) => {
   try {
+    if (!userId) {
+      console.error("No user ID provided to updateUserProfile");
+      return { data: null, error: new Error("No user ID provided") };
+    }
+
     console.log("Updating profile for user:", userId, "with data:", data);
     
     // Transform form data to match the database schema column names

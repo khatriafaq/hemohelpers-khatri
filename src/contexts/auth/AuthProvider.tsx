@@ -13,7 +13,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     profile,
     isLoading,
     isAdmin,
-    setProfile
+    setProfile,
+    refreshProfile
   } = useAuthentication();
 
   const {
@@ -33,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signUp,
     signOut,
     updateProfile,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
