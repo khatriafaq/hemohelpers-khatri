@@ -10,7 +10,7 @@ export const fetchUserProfile = async (userId: string) => {
 
     console.log("Fetching profile for user:", userId);
     
-    // Try a direct query with service role client to bypass RLS issues
+    // Try a direct query with client to bypass RLS issues
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -54,6 +54,22 @@ const createNewProfile = async (userId: string) => {
       return { profile: null, isAdmin: false, error: new Error('No user found') };
     }
     
+    // Check if profile actually exists first to prevent duplicate entries
+    const { data: existingProfile, error: checkError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+      
+    if (!checkError && existingProfile) {
+      console.log('Profile found during second check:', existingProfile);
+      return { 
+        profile: existingProfile, 
+        isAdmin: Boolean(existingProfile.is_admin),
+        error: null 
+      };
+    }
+    
     const email = user.email || '';
     const metadata = user.user_metadata || {};
     
@@ -67,7 +83,7 @@ const createNewProfile = async (userId: string) => {
       blood_type: metadata.blood_type || null,
       location: metadata.location || null,
       is_available: true,
-      is_verified: false,
+      is_verified: false, // Default to false, admin will verify
       is_admin: false
     };
     
@@ -88,7 +104,7 @@ const createNewProfile = async (userId: string) => {
       };
     }
     
-    console.log('New profile created:', data);
+    console.log('New profile created or updated:', data);
     return { profile: data, isAdmin: Boolean(data?.is_admin) };
   } catch (error: any) {
     console.error('Error in createNewProfile:', error.message);

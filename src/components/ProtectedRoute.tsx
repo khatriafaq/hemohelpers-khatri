@@ -19,7 +19,8 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
     isAdmin, 
     isVerified: profile?.is_verified,
     requireAdmin,
-    hasProfileError: !!profileError
+    hasProfileError: !!profileError,
+    profile // Log the complete profile for debugging
   });
 
   // Attempt to refresh profile if user is logged in but no profile is available
@@ -64,7 +65,8 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
   }
 
   // Profile not approved yet - only redirect if we have actually loaded the profile
-  if (profile && !profile.is_verified && !isAdmin) {
+  // Check both the profile object directly and handle direct DB verification status
+  if (profile && profile.is_verified === false && !isAdmin) {
     console.log("Profile not verified, redirecting to pending approval");
     return <Navigate to="/auth/pending-approval" replace />;
   }

@@ -1,12 +1,33 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Clock, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const PendingApproval = () => {
-  const { signOut } = useAuth();
+  const { signOut, refreshProfile, profile } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toast } = useToast();
+  
+  console.log("PendingApproval rendered with profile:", profile);
+  
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    refreshProfile();
+    
+    toast({
+      title: "Status Refreshed",
+      description: "Your account status has been refreshed.",
+    });
+    
+    // Give time for the profile to refresh before allowing another refresh
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 3000);
+  };
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4">
@@ -30,6 +51,26 @@ const PendingApproval = () => {
           <p className="text-muted-foreground">
             If you believe this is an error or have any questions, please contact our support team.
           </p>
+          
+          <div className="mt-6 p-4 bg-muted/40 rounded-lg">
+            <h3 className="font-medium mb-2">Account Status</h3>
+            <p className="text-sm text-muted-foreground">
+              Verification Status: <span className="font-medium">{profile?.is_verified ? "Verified" : "Pending"}</span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Active Status: <span className="font-medium">{profile?.is_available ? "Active" : "Inactive"}</span>
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-3"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh Status
+            </Button>
+          </div>
         </CardContent>
         <CardFooter className="flex justify-center gap-4 p-6">
           <Button asChild variant="outline">
