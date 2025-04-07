@@ -4,29 +4,95 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Clock, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const PendingApproval = () => {
-  const { signOut, refreshProfile, profile } = useAuth();
+  const { signOut, refreshProfile, profile, user } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<boolean | null>(null);
   const { toast } = useToast();
   
   console.log("PendingApproval rendered with profile:", profile);
   
+  // Check verification status directly from the database on mount
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      if (!user?.id) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_verified')
+        .eq('id', user.id)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error checking verification status:', error);
+        return;
+      }
+      
+      if (data) {
+        console.log('Retrieved verification status:', data.is_verified);
+        setVerificationStatus(data.is_verified);
+      }
+    };
+    
+    checkVerificationStatus();
+  }, [user]);
+  
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    refreshProfile();
     
-    toast({
-      title: "Status Refreshed",
-      description: "Your account status has been refreshed.",
-    });
-    
-    // Give time for the profile to refresh before allowing another refresh
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 3000);
+    try {
+      // First refresh verification status directly from the database
+      if (user?.id) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_verified')
+          .eq('id', user.id)
+          .maybeSingle();
+          
+        if (!error && data) {
+          setVerificationStatus(data.is_verified);
+          
+          // If verified, we should redirect
+          if (data.is_verified) {
+            toast({
+              title: "Account Verified!",
+              description: "Your account has been verified. Redirecting to the home page.",
+              variant: "default",
+            });
+            
+            // Redirect after a short delay
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+            return;
+          }
+        }
+      }
+      
+      // Then refresh the full profile
+      refreshProfile();
+      
+      toast({
+        title: "Status Refreshed",
+        description: "Your account status has been refreshed.",
+      });
+    } catch (error) {
+      console.error('Error refreshing status:', error);
+      toast({
+        title: "Refresh Failed",
+        description: "There was an error refreshing your status. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      // Give time for the profile to refresh before allowing another refresh
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 3000);
+    }
   };
   
   return (
@@ -55,7 +121,13 @@ const PendingApproval = () => {
           <div className="mt-6 p-4 bg-muted/40 rounded-lg">
             <h3 className="font-medium mb-2">Account Status</h3>
             <p className="text-sm text-muted-foreground">
-              Verification Status: <span className="font-medium">{profile?.is_verified ? "Verified" : "Pending"}</span>
+              Verification Status: <span className="font-medium">
+                {verificationStatus === true ? (
+                  <span className="text-green-600">Verified</span>
+                ) : (
+                  <span className="text-amber-600">Pending</span>
+                )}
+              </span>
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               Active Status: <span className="font-medium">{profile?.is_available ? "Active" : "Inactive"}</span>

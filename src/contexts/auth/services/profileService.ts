@@ -10,19 +10,20 @@ export const fetchUserProfile = async (userId: string) => {
 
     console.log("Fetching profile for user:", userId);
     
-    // Try a direct query with client to bypass RLS issues
+    // Try a direct query using the adminClient to bypass RLS issues
+    // Since we're authenticated as the user, we can access their own profile
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching profile:', error);
       
       if (error.code === 'PGRST116' || error.code === '42P17' || error.message.includes('infinite recursion')) {
-        console.log('Profile not found or recursion error, attempting to create profile directly');
-        return await createNewProfile(userId);
+        console.log('Profile not found or recursion error, attempting direct user retrieval');
+        return await createProfileFromUserData(userId);
       }
       
       return { profile: null, isAdmin: false, error };
@@ -35,15 +36,15 @@ export const fetchUserProfile = async (userId: string) => {
     
     // If we get here with no error but no data, try to create a profile
     console.log("No profile found, creating new profile");
-    return await createNewProfile(userId);
+    return await createProfileFromUserData(userId);
   } catch (error: any) {
     console.error('Unhandled error in fetchUserProfile:', error.message);
     return { profile: null, isAdmin: false, error };
   }
 };
 
-// Simplified profile creation that doesn't rely on RLS
-const createNewProfile = async (userId: string) => {
+// Retrieve user data directly and construct a profile object
+const createProfileFromUserData = async (userId: string) => {
   try {
     // Get user information from auth
     const { data: userData } = await supabase.auth.getUser();
@@ -55,14 +56,10 @@ const createNewProfile = async (userId: string) => {
     }
     
     // Check if profile actually exists first to prevent duplicate entries
-    const { data: existingProfile, error: checkError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const { data: existingProfile } = await supabase.rpc('get_profile_by_id', { user_id: userId });
       
-    if (!checkError && existingProfile) {
-      console.log('Profile found during second check:', existingProfile);
+    if (existingProfile) {
+      console.log('Profile found using RPC function:', existingProfile);
       return { 
         profile: existingProfile, 
         isAdmin: Boolean(existingProfile.is_admin),
@@ -73,32 +70,33 @@ const createNewProfile = async (userId: string) => {
     const email = user.email || '';
     const metadata = user.user_metadata || {};
     
-    console.log('Creating new profile with user data:', { userId, email, metadata });
+    console.log('Creating profile object from user data:', { userId, email, metadata });
     
-    // Create profile with user metadata
-    const newProfile = {
+    // Create profile object from user metadata
+    const profileData = {
       id: userId,
       email,
       full_name: metadata.full_name || '',
       blood_type: metadata.blood_type || null,
       location: metadata.location || null,
       is_available: true,
-      is_verified: false, // Default to false, admin will verify
+      is_verified: false, 
       is_admin: false
     };
     
+    // Try to insert the profile data
     const { data, error } = await supabase
       .from('profiles')
-      .upsert([newProfile])
+      .upsert([profileData])
       .select()
       .single();
       
     if (error) {
-      console.error('Error creating profile:', error);
+      console.error('Error creating profile in database:', error);
       
-      // If we still have errors, return a manually constructed profile as fallback
+      // If we still have errors, return the constructed profile as fallback
       return { 
-        profile: newProfile, 
+        profile: profileData, 
         isAdmin: false,
         error: null
       };
@@ -107,7 +105,7 @@ const createNewProfile = async (userId: string) => {
     console.log('New profile created or updated:', data);
     return { profile: data, isAdmin: Boolean(data?.is_admin) };
   } catch (error: any) {
-    console.error('Error in createNewProfile:', error.message);
+    console.error('Error in createProfileFromUserData:', error.message);
     
     // Last resort: return a basic profile object without database insertion
     return { 

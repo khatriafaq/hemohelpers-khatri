@@ -9,10 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const { user, profile, isLoading, refreshProfile, profileError } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
+  const [directProfileData, setDirectProfileData] = useState<any>(null);
+  const [isDirectFetching, setIsDirectFetching] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -28,6 +31,44 @@ const Profile = () => {
       navigate('/auth/sign-in');
     }
   }, [user, isLoading, navigate]);
+
+  // Direct profile fetch from Supabase (bypassing context)
+  useEffect(() => {
+    const fetchProfileDirectly = async () => {
+      if (!user?.id || directProfileData) return;
+      
+      try {
+        setIsDirectFetching(true);
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("Error fetching profile directly:", error);
+        } else if (data) {
+          console.log("Direct profile fetch successful:", data);
+          setDirectProfileData(data);
+          
+          // If profile is verified but we're on pending page, redirect home
+          if (data.is_verified && window.location.pathname.includes('pending-approval')) {
+            toast({
+              title: "Account Verified",
+              description: "Your account is now verified. Redirecting to your profile."
+            });
+            navigate('/profile');
+          }
+        }
+      } catch (e) {
+        console.error("Exception fetching profile directly:", e);
+      } finally {
+        setIsDirectFetching(false);
+      }
+    };
+    
+    fetchProfileDirectly();
+  }, [user, navigate, toast, directProfileData]);
 
   // Check if there are any auth errors on page load
   useEffect(() => {
@@ -47,6 +88,7 @@ const Profile = () => {
   // Handle refresh with retry limit
   const handleRefresh = () => {
     setRetryCount(prev => prev + 1);
+    setDirectProfileData(null); // Clear direct data to force refresh
     refreshProfile();
     toast({
       title: "Refreshing Profile",
@@ -54,7 +96,7 @@ const Profile = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isDirectFetching) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-blood" />
@@ -70,6 +112,9 @@ const Profile = () => {
       </div>
     );
   }
+
+  // Use direct profile data if available
+  const displayProfile = directProfileData || profile;
 
   // Display user metadata if profile is not available
   const renderFallbackUserInfo = () => {
@@ -143,9 +188,9 @@ const Profile = () => {
               </Alert>
             )}
             
-            {!profile && !isLoading && renderFallbackUserInfo()}
+            {!displayProfile && !isLoading && renderFallbackUserInfo()}
             
-            {profile ? (
+            {displayProfile ? (
               <ProfileForm />
             ) : (
               <Card>
