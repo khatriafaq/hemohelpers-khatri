@@ -12,6 +12,7 @@ export const useAuthentication = () => {
   const [profile, setProfile] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [profileError, setProfileError] = useState<Error | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const profileFetchAttempts = useRef(0);
@@ -21,23 +22,19 @@ export const useAuthentication = () => {
     console.log("Handling profile fetch for user:", userId);
     
     try {
-      // Don't set loading state again if we're retrying fetch
       if (profileFetchAttempts.current === 0) {
         setIsLoading(true);
       }
       
       // Increment fetch attempts
       profileFetchAttempts.current += 1;
+      setProfileError(null);
       
       // Check if we've exceeded max attempts
       if (profileFetchAttempts.current > maxProfileFetchAttempts) {
         console.log(`Exceeded max profile fetch attempts (${maxProfileFetchAttempts})`);
         setIsLoading(false);
-        toast({
-          title: "Profile Error",
-          description: "Unable to load your profile after multiple attempts. Please try again later.",
-          variant: "destructive",
-        });
+        setProfileError(new Error(`Failed to load profile after ${maxProfileFetchAttempts} attempts`));
         return;
       }
       
@@ -45,16 +42,12 @@ export const useAuthentication = () => {
       
       if (error) {
         console.error("Error fetching profile:", error);
-        if (profileFetchAttempts.current < maxProfileFetchAttempts) {
+        setProfileError(error);
+        
+        if (profileFetchAttempts.current >= maxProfileFetchAttempts) {
           toast({
             title: "Profile Error",
-            description: "Failed to load your profile. Retrying...",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Profile Error",
-            description: "Failed to load your profile. Please try again.",
+            description: "Failed to load your profile. Please try again later.",
             variant: "destructive",
           });
         }
@@ -64,14 +57,16 @@ export const useAuthentication = () => {
         console.log("Setting profile and admin status:", profile, isAdmin);
         setProfile(profile);
         setIsAdmin(Boolean(isAdmin));
-        // Reset attempts on success
-        profileFetchAttempts.current = 0;
-      } else {
+        profileFetchAttempts.current = 0; // Reset attempts on success
+        setProfileError(null);
+      } else if (!error) {
+        // If no profile and no error, we should still stop loading
         console.log("No profile found, setting null");
         setProfile(null);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in handleProfileFetch:", error);
+      setProfileError(error);
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +84,7 @@ export const useAuthentication = () => {
       if (event === 'SIGNED_OUT') {
         setProfile(null);
         setIsAdmin(false);
+        setProfileError(null);
         navigate('/');
       } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && currentSession) {
         // Reset fetch attempts counter
@@ -146,10 +142,13 @@ export const useAuthentication = () => {
   // Add a manual profile refresh function with protection against infinite retries
   const refreshProfile = useCallback(() => {
     if (user?.id) {
-      // Reset the counter to allow fresh attempts
-      profileFetchAttempts.current = 0;
+      console.log("Manual profile refresh requested");
+      // Allow fresh attempts but don't completely reset counter
+      profileFetchAttempts.current = Math.max(0, profileFetchAttempts.current - 1);
       setIsLoading(true);
       handleProfileFetch(user.id);
+    } else {
+      console.log("Cannot refresh profile: no user ID available");
     }
   }, [user, handleProfileFetch]);
 
@@ -159,6 +158,7 @@ export const useAuthentication = () => {
     profile,
     isLoading,
     isAdmin,
+    profileError,
     setProfile,
     refreshProfile,
   };

@@ -7,6 +7,7 @@ export interface AuthContextType {
   profile: any | null;
   isLoading: boolean;
   isAdmin: boolean;
+  profileError: Error | null;
   signIn: (email: string, password: string) => Promise<{
     error: any | null;
     data: any | null;
@@ -20,5 +21,5 @@ export interface AuthContextType {
     error: any | null;
     data: any | null;
   }>;
-  refreshProfile: () => void;  // Add this new function type
+  refreshProfile: () => void;
 }

@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { ProfileForm } from "@/components/profile";
 import { useAuth } from "@/contexts/auth";
-import { Loader2, RefreshCw, AlertTriangle } from "lucide-react";
+import { Loader2, RefreshCw, AlertTriangle, UserCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Profile = () => {
-  const { user, profile, isLoading, refreshProfile } = useAuth();
+  const { user, profile, isLoading, refreshProfile, profileError } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -70,6 +71,54 @@ const Profile = () => {
     );
   }
 
+  // Display user metadata if profile is not available
+  const renderFallbackUserInfo = () => {
+    const metadata = user.user_metadata || {};
+    
+    return (
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <UserCircle className="h-6 w-6 mr-2 text-primary" />
+            User Information from Auth
+          </CardTitle>
+          <CardDescription>
+            We're having trouble loading your full profile data, but here's the information we have from your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium">Email</h3>
+              <p>{user.email || "No email available"}</p>
+            </div>
+            
+            {metadata.full_name && (
+              <div>
+                <h3 className="font-medium">Name</h3>
+                <p>{metadata.full_name}</p>
+              </div>
+            )}
+            
+            {metadata.blood_type && (
+              <div>
+                <h3 className="font-medium">Blood Type</h3>
+                <p>{metadata.blood_type}</p>
+              </div>
+            )}
+            
+            {metadata.location && (
+              <div>
+                <h3 className="font-medium">Location</h3>
+                <p>{metadata.location}</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <main className="min-h-screen bg-muted/20">
       <Navbar />
@@ -84,6 +133,18 @@ const Profile = () => {
               </p>
             </div>
             
+            {profileError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Profile Error</AlertTitle>
+                <AlertDescription>
+                  There was an error loading your profile: {profileError.message}
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {!profile && !isLoading && renderFallbackUserInfo()}
+            
             {profile ? (
               <ProfileForm />
             ) : (
@@ -91,10 +152,10 @@ const Profile = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
-                    Unable to Load Profile
+                    Complete Your Profile
                   </CardTitle>
                   <CardDescription>
-                    We're having trouble loading your profile data. This could be due to a temporary issue.
+                    We're having trouble loading your complete profile data. This could be due to a temporary issue.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -102,11 +163,16 @@ const Profile = () => {
                     <div className="flex flex-col items-center">
                       {retryCount < 3 ? (
                         <>
-                          <p className="mb-4">Please try refreshing your profile data.</p>
-                          <Button onClick={handleRefresh} variant="outline" className="flex items-center">
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Refresh Profile
-                          </Button>
+                          <p className="mb-4">Please try refreshing your profile data or complete your profile.</p>
+                          <div className="space-x-4">
+                            <Button onClick={handleRefresh} variant="outline" className="flex items-center">
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Refresh Profile
+                            </Button>
+                            <Button onClick={() => window.location.reload()}>
+                              Reload Page
+                            </Button>
+                          </div>
                         </>
                       ) : (
                         <>
