@@ -1,15 +1,17 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { ProfileForm } from "@/components/profile";
 import { useAuth } from "@/contexts/auth";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Profile = () => {
   const { user, profile, isLoading, refreshProfile } = useAuth();
+  const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,8 +43,9 @@ const Profile = () => {
     }
   }, [toast]);
 
-  // Handle refresh
+  // Handle refresh with retry limit
   const handleRefresh = () => {
+    setRetryCount(prev => prev + 1);
     refreshProfile();
     toast({
       title: "Refreshing Profile",
@@ -84,16 +87,44 @@ const Profile = () => {
             {profile ? (
               <ProfileForm />
             ) : (
-              <div className="text-center p-8 border rounded-lg">
-                <div className="flex flex-col items-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-blood mx-auto mb-4" />
-                  <p className="mb-4">Unable to load profile data.</p>
-                  <Button onClick={handleRefresh} variant="outline" className="flex items-center">
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh
-                  </Button>
-                </div>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
+                    Unable to Load Profile
+                  </CardTitle>
+                  <CardDescription>
+                    We're having trouble loading your profile data. This could be due to a temporary issue.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center p-4">
+                    <div className="flex flex-col items-center">
+                      {retryCount < 3 ? (
+                        <>
+                          <p className="mb-4">Please try refreshing your profile data.</p>
+                          <Button onClick={handleRefresh} variant="outline" className="flex items-center">
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Refresh Profile
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <p className="mb-4">We've tried several times to load your profile without success.</p>
+                          <div className="space-y-2">
+                            <Button onClick={() => navigate('/')} variant="outline">
+                              Return to Home Page
+                            </Button>
+                            <Button onClick={() => window.location.reload()} className="ml-2">
+                              Reload Page
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

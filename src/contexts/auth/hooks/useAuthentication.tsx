@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -14,27 +14,58 @@ export const useAuthentication = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const profileFetchAttempts = useRef(0);
+  const maxProfileFetchAttempts = 3;
 
   const handleProfileFetch = useCallback(async (userId: string) => {
     console.log("Handling profile fetch for user:", userId);
     
     try {
-      setIsLoading(true);
+      // Don't set loading state again if we're retrying fetch
+      if (profileFetchAttempts.current === 0) {
+        setIsLoading(true);
+      }
+      
+      // Increment fetch attempts
+      profileFetchAttempts.current += 1;
+      
+      // Check if we've exceeded max attempts
+      if (profileFetchAttempts.current > maxProfileFetchAttempts) {
+        console.log(`Exceeded max profile fetch attempts (${maxProfileFetchAttempts})`);
+        setIsLoading(false);
+        toast({
+          title: "Profile Error",
+          description: "Unable to load your profile after multiple attempts. Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const { profile, isAdmin, error } = await fetchUserProfile(userId);
       
       if (error) {
         console.error("Error fetching profile:", error);
-        toast({
-          title: "Profile Error",
-          description: "Failed to load your profile. Please try again.",
-          variant: "destructive",
-        });
+        if (profileFetchAttempts.current < maxProfileFetchAttempts) {
+          toast({
+            title: "Profile Error",
+            description: "Failed to load your profile. Retrying...",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Profile Error",
+            description: "Failed to load your profile. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
       
       if (profile) {
         console.log("Setting profile and admin status:", profile, isAdmin);
         setProfile(profile);
         setIsAdmin(Boolean(isAdmin));
+        // Reset attempts on success
+        profileFetchAttempts.current = 0;
       } else {
         console.log("No profile found, setting null");
         setProfile(null);
@@ -60,6 +91,9 @@ export const useAuthentication = () => {
         setIsAdmin(false);
         navigate('/');
       } else if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') && currentSession) {
+        // Reset fetch attempts counter
+        profileFetchAttempts.current = 0;
+        
         // Use setTimeout to avoid potential auth deadlocks
         setTimeout(() => {
           handleProfileFetch(currentSession.user.id);
@@ -109,9 +143,11 @@ export const useAuthentication = () => {
     };
   }, [navigate, handleProfileFetch]);
 
-  // Add a manual profile refresh function
+  // Add a manual profile refresh function with protection against infinite retries
   const refreshProfile = useCallback(() => {
     if (user?.id) {
+      // Reset the counter to allow fresh attempts
+      profileFetchAttempts.current = 0;
       setIsLoading(true);
       handleProfileFetch(user.id);
     }

@@ -2,7 +2,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ProtectedRouteProps {
   requireAdmin?: boolean;
@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
   const { user, isLoading, isAdmin, profile, refreshProfile } = useAuth();
+  const [profileRefreshed, setProfileRefreshed] = useState(false);
   
   console.log("ProtectedRoute checks:", { 
     isLoading, 
@@ -21,11 +22,12 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
 
   // Attempt to refresh profile if user is logged in but no profile is available
   useEffect(() => {
-    if (user && !profile && !isLoading) {
+    if (user && !profile && !isLoading && !profileRefreshed) {
       console.log("User exists but no profile found, attempting to refresh profile");
       refreshProfile();
+      setProfileRefreshed(true);
     }
-  }, [user, profile, isLoading, refreshProfile]);
+  }, [user, profile, isLoading, refreshProfile, profileRefreshed]);
 
   if (isLoading) {
     return (
@@ -54,6 +56,7 @@ const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // Continue even if profile is null - the component will handle showing an error
   console.log("ProtectedRoute passed all checks, rendering Outlet");
   return <Outlet />;
 };
