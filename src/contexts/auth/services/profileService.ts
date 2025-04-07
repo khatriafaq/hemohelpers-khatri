@@ -32,7 +32,8 @@ export const fetchUserProfile = async (userId: string) => {
           .insert([{ 
             id: userId, 
             email,
-            is_available: true
+            is_available: true,
+            is_verified: false
           }])
           .select()
           .single();

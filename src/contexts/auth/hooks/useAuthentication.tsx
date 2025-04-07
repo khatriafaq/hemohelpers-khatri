@@ -19,6 +19,7 @@ export const useAuthentication = () => {
     console.log("Handling profile fetch for user:", userId);
     
     try {
+      setIsLoading(true);
       const { profile, isAdmin, error } = await fetchUserProfile(userId);
       
       if (error) {
@@ -123,6 +124,6 @@ export const useAuthentication = () => {
     isLoading,
     isAdmin,
     setProfile,
-    refreshProfile, // Add this new function
+    refreshProfile,
   };
 };
