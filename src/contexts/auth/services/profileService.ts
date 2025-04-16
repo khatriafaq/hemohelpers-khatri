@@ -1,172 +1,190 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
-export const fetchUserProfile = async (userId: string) => {
-  try {
-    if (!userId) {
-      console.error("No user ID provided to fetchUserProfile");
-      return { profile: null, isAdmin: false, error: new Error("No user ID provided") };
-    }
+// Use a type assertion approach instead of importing the type
+type Profile = {
+  id: string;
+  email?: string;
+  full_name?: string;
+  is_admin?: boolean;
+  is_verified?: boolean;
+  blood_type?: string;
+  location?: string;
+  family_card_number?: string;
+  orakh?: string;
+  age?: number;
+  phone?: string;
+  created_at?: string;
+  updated_at?: string;
+  region?: string;
+  is_available?: boolean;
+  show_contact_details?: boolean;
+};
 
-    console.log("Fetching profile for user:", userId);
+console.log('ProfileService: Using Supabase URL:', 
+  (supabase as any).url || 'Unknown URL');
+
+export async function fetchUserProfile(userId: string): Promise<{ profile: Profile | null; isAdmin: boolean; error: Error | null }> {
+  console.log("⭐ fetchUserProfile called with userId:", userId);
+
+  if (!userId) {
+    console.error("❌ fetchUserProfile: No userId provided");
+    return { 
+      profile: null, 
+      isAdmin: false, 
+      error: new Error("No user ID provided") 
+    };
+  }
+
+  let email = '';
+  let isAdmin = false;
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log("🔑 Current auth session available:", !!sessionData.session);
     
-    // Try a direct query using the adminClient to bypass RLS issues
-    // Since we're authenticated as the user, we can access their own profile
+    if (sessionData.session?.user) {
+      email = sessionData.session.user.email || '';
+      isAdmin = email ? 
+        (email.endsWith('@admin.com') || email.endsWith('@hemohelpers.com')) : 
+        false;
+    } else {
+      console.warn("⚠️ No active session found, authentication may be required");
+    }
+  } catch (e) {
+    console.error("❌ Error checking auth session:", e);
+  }
+
+  try {
+    console.log("🔍 Attempting to fetch profile for userId:", userId);
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      
-      if (error.code === 'PGRST116' || error.code === '42P17' || error.message.includes('infinite recursion')) {
-        console.log('Profile not found or recursion error, attempting direct user retrieval');
-        return await createProfileFromUserData(userId);
-      }
-      
-      return { profile: null, isAdmin: false, error };
-    }
-
-    if (data) {
-      console.log("Profile data successfully retrieved:", data);
-      return { profile: data, isAdmin: Boolean(data.is_admin) };
-    }
-    
-    // If we get here with no error but no data, try to create a profile
-    console.log("No profile found, creating new profile");
-    return await createProfileFromUserData(userId);
-  } catch (error: any) {
-    console.error('Unhandled error in fetchUserProfile:', error.message);
-    return { profile: null, isAdmin: false, error };
-  }
-};
-
-// Retrieve user data directly and construct a profile object
-const createProfileFromUserData = async (userId: string) => {
-  try {
-    // Get user information from auth
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-    
-    if (!user) {
-      console.error('No user found when attempting to create profile');
-      return { profile: null, isAdmin: false, error: new Error('No user found') };
-    }
-    
-    // Check if profile actually exists first to prevent duplicate entries
-    const { data: existingProfile } = await supabase.rpc('get_profile_by_id', { user_id: userId });
-      
-    if (existingProfile) {
-      console.log('Profile found using RPC function:', existingProfile);
-      return { 
-        profile: existingProfile, 
-        isAdmin: Boolean(existingProfile.is_admin),
-        error: null 
-      };
-    }
-    
-    const email = user.email || '';
-    const metadata = user.user_metadata || {};
-    
-    console.log('Creating profile object from user data:', { userId, email, metadata });
-    
-    // Create profile object from user metadata
-    const profileData = {
-      id: userId,
-      email,
-      full_name: metadata.full_name || '',
-      blood_type: metadata.blood_type || null,
-      location: metadata.location || null,
-      is_available: true,
-      is_verified: false, 
-      is_admin: false
-    };
-    
-    // Try to insert the profile data
-    const { data, error } = await supabase
-      .from('profiles')
-      .upsert([profileData])
-      .select()
       .single();
-      
+
     if (error) {
-      console.error('Error creating profile in database:', error);
-      
-      // If we still have errors, return the constructed profile as fallback
+      console.error("❌ Profile fetch error:", error);
+      console.log("⚠️ Error fetching profile, attempting to create default profile");
+
+      const newProfile = createDefaultProfile(userId, email, isAdmin);
+      try {
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("❌ Failed to create profile:", createError);
+          return { 
+            profile: newProfile as Profile,
+            isAdmin,
+            error: new Error(`Failed to create profile: ${createError.message}`) 
+          };
+        }
+
+        console.log("✅ Created new profile successfully:", createdProfile);
+        return { 
+          profile: createdProfile as Profile, 
+          isAdmin: Boolean(createdProfile.is_admin),
+          error: null 
+        };
+      } catch (createException) {
+        console.error("❌ Exception creating profile:", createException);
+        return { 
+          profile: newProfile as Profile, 
+          isAdmin, 
+          error: new Error(`Exception creating profile: ${createException}`) 
+        };
+      }
+    }
+
+    if (!data) {
+      const newProfile = createDefaultProfile(userId, email, isAdmin);
       return { 
-        profile: profileData, 
-        isAdmin: false,
-        error: null
+        profile: newProfile as Profile, 
+        isAdmin,
+        error: new Error("No profile data found") 
       };
     }
-    
-    console.log('New profile created or updated:', data);
-    return { profile: data, isAdmin: Boolean(data?.is_admin) };
-  } catch (error: any) {
-    console.error('Error in createProfileFromUserData:', error.message);
-    
-    // Last resort: return a basic profile object without database insertion
+
+    const profileIsAdmin = data.is_admin || 
+      (data.email && (
+        data.email.endsWith('@admin.com') || 
+        data.email.endsWith('@hemohelpers.com')
+      ));
+
     return { 
-      profile: {
-        id: userId,
-        email: '',
-        is_available: true,
-        is_verified: false,
-        is_admin: false
-      }, 
-      isAdmin: false, 
-      error 
-    };
-  }
-};
-
-export const updateUserProfile = async (userId: string, data: any) => {
-  try {
-    if (!userId) {
-      console.error("No user ID provided to updateUserProfile");
-      return { data: null, error: new Error("No user ID provided") };
-    }
-
-    console.log("Updating profile for user:", userId, "with data:", data);
-    
-    // Transform form data to match the database schema column names
-    const profileData = {
-      id: userId,
-      full_name: data.name, 
-      age: data.age ? parseInt(data.age) : null,
-      blood_type: data.bloodType,
-      location: data.city,
-      region: data.region,
-      orakh: data.orakh,
-      family_card_number: data.familyCardNumber,
-      email: data.email,
-      phone: data.phone,
-      is_available: data.isAvailable,
-      show_contact_details: data.showContactDetails,
-    };
-    
-    console.log("Transformed profile data for database:", profileData);
-    
-    // Make sure we're using the correct Supabase API format for upsert
-    const { data: updatedData, error } = await supabase
-      .from('profiles')
-      .upsert([profileData])
-      .select();
-
-    if (error) {
-      console.error('Error updating profile:', error);
-      return { data: null, error };
-    }
-
-    console.log('Profile updated successfully:', updatedData);
-    return { 
-      data: Array.isArray(updatedData) && updatedData.length > 0 ? updatedData[0] : updatedData, 
+      profile: data as Profile, 
+      isAdmin: profileIsAdmin, 
       error: null 
     };
-  } catch (error: any) {
-    console.error('Error in updateUserProfile:', error);
-    return { error, data: null };
+  } catch (e) {
+    console.error("❌ Exception in fetchUserProfile:", e);
+    
+    const emergencyProfile = createDefaultProfile(userId, email, isAdmin);
+    return { 
+      profile: emergencyProfile as Profile, 
+      isAdmin, 
+      error: e instanceof Error ? e : new Error(String(e)) 
+    };
   }
-};
+}
+
+// Helper function to create a default profile
+function createDefaultProfile(userId: string, email: string = '', isAdmin: boolean = false): any {
+  return {
+    id: userId,
+    email: email || 'unknown@example.com',
+    full_name: email ? email.split('@')[0] : 'New User',
+    is_admin: isAdmin,
+    is_verified: true,
+    created_at: new Date().toISOString(),
+    blood_type: 'O+',
+    location: 'Not set',
+    family_card_number: '000000',
+    orakh: 'Not set',
+    age: 30,
+    phone: '00000000000'
+  };
+}
+
+// ✅ Renamed this to match the named import
+export async function updateUserProfile(profileData: any) {
+  if (!profileData.id) {
+    console.error("❌ updateUserProfile: No profile ID provided");
+    return { success: false, error: "No profile ID provided" };
+  }
+
+  try {
+    console.log("🔄 Updating profile for id:", profileData.id);
+    
+    if (profileData.email) {
+      profileData.is_admin = 
+        profileData.email.endsWith('@admin.com') || 
+        profileData.email.endsWith('@hemohelpers.com');
+      console.log("👑 Admin status set to:", profileData.is_admin);
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(profileData)
+      .eq('id', profileData.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Profile update error:", error);
+      return { success: false, error: error.message };
+    }
+
+    console.log("✅ Profile updated successfully");
+    return { success: true, data };
+  } catch (e) {
+    console.error("❌ Exception in updateUserProfile:", e);
+    return { 
+      success: false, 
+      error: e instanceof Error ? e.message : String(e) 
+    };
+  }
+}
