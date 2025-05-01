@@ -74,19 +74,9 @@ export const useUsers = () => {
           else if (profile.is_verified === false && profile.is_available === false) {
             status = "banned";
           }
-          // If is_verified is explicitly set to false and the user was recently created (within last 24 hours),
-          // treat them as pending (new user)
-          else if (profile.is_verified === false && profile.created_at) {
-            const createdDate = new Date(profile.created_at);
-            const now = new Date();
-            const hoursSinceCreation = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
-            
-            if (hoursSinceCreation < 24) {
-              status = "pending";
-              console.log(`User ${profile.id} is a new user (created ${hoursSinceCreation.toFixed(2)} hours ago), treating as pending`);
-            } else {
-              status = "rejected";
-            }
+          // If is_verified is explicitly set to false, user is pending
+          else if (profile.is_verified === false) {
+            status = "pending";
           }
           // If is_verified is null, undefined, or any other value, user is pending (new user)
           else {
