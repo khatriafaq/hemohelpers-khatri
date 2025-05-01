@@ -37,6 +37,7 @@ const UserTabs = ({
   // Add console log to help with debugging
   console.log(`UserTabs received ${filteredUsers?.length || 0} users, loading: ${loading}`);
   console.log(`User counts by status - Pending: ${pendingCount}, Verified: ${verifiedCount}, Rejected: ${rejectedCount}, Banned: ${bannedCount}`);
+  console.log("Filtered users:", filteredUsers);
 
   // Auto-select the pending tab if there are pending users and we're not on a specific tab
   useEffect(() => {

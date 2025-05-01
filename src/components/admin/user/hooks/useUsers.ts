@@ -29,7 +29,7 @@ export const useUsers = () => {
           return;
         }
         
-        // Fetch all users from Supabase - removed filtering to get ALL users
+        // Fetch all users from Supabase
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -58,9 +58,6 @@ export const useUsers = () => {
 
         // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
-          // Determine status based on verification state
-          let status: "verified" | "pending" | "rejected" | "banned" = "pending";
-          
           // Log the raw values for debugging
           console.log(`User ${profile.id} raw values:`, {
             id: profile.id,
@@ -71,6 +68,8 @@ export const useUsers = () => {
           });
           
           // UPDATED LOGIC FOR STATUS DETERMINATION:
+          let status: "verified" | "pending" | "rejected" | "banned";
+          
           // If is_verified is explicitly true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
