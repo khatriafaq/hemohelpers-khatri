@@ -70,6 +70,7 @@ export const useUsers = () => {
             created_at: profile.created_at
           });
           
+          // UPDATED LOGIC FOR STATUS DETERMINATION:
           // If is_verified is explicitly true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
@@ -78,24 +79,11 @@ export const useUsers = () => {
           else if (profile.is_verified === false && profile.is_available === false) {
             status = "banned";
           }
-          // If is_verified is explicitly false, treat user as rejected, unless created recently
+          // If is_verified is explicitly false, user is rejected
           else if (profile.is_verified === false) {
-            // Default to rejected
             status = "rejected";
-            
-            // But if the user was created within last 24 hours, mark as pending
-            if (profile.created_at) {
-              const createdDate = new Date(profile.created_at);
-              const now = new Date();
-              const hoursSinceCreation = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
-              
-              if (hoursSinceCreation < 24) {
-                status = "pending";
-                console.log(`User ${profile.id} is a new user (created ${hoursSinceCreation.toFixed(2)} hours ago), treating as pending`);
-              }
-            }
           }
-          // If is_verified is null/undefined, user is pending
+          // If is_verified is null or undefined, user is pending
           else {
             status = "pending";
             console.log(`User ${profile.id} has is_verified=${profile.is_verified}, treating as pending`);
@@ -126,6 +114,7 @@ export const useUsers = () => {
         console.log("Pending users:", formattedUsers.filter(u => u.status === "pending").length);
         console.log("Verified users:", formattedUsers.filter(u => u.status === "verified").length);
         console.log("Rejected users:", formattedUsers.filter(u => u.status === "rejected").length);
+        console.log("Banned users:", formattedUsers.filter(u => u.status === "banned").length);
         
         setUsers(formattedUsers);
       } catch (error) {

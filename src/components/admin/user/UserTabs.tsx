@@ -32,23 +32,25 @@ const UserTabs = ({
   const pendingCount = filteredUsers ? filteredUsers.filter(user => user.status === "pending").length : 0;
   const verifiedCount = filteredUsers ? filteredUsers.filter(user => user.status === "verified").length : 0;
   const rejectedCount = filteredUsers ? filteredUsers.filter(user => user.status === "rejected").length : 0;
+  const bannedCount = filteredUsers ? filteredUsers.filter(user => user.status === "banned").length : 0;
   
   // Add console log to help with debugging
   console.log(`UserTabs received ${filteredUsers?.length || 0} users, loading: ${loading}`);
-  console.log(`User counts by status - Pending: ${pendingCount}, Verified: ${verifiedCount}, Rejected: ${rejectedCount}`);
+  console.log(`User counts by status - Pending: ${pendingCount}, Verified: ${verifiedCount}, Rejected: ${rejectedCount}, Banned: ${bannedCount}`);
 
-  // Auto-select the pending tab if there are pending users
+  // Auto-select the pending tab if there are pending users and we're not on a specific tab
   useEffect(() => {
     if (pendingCount > 0 && activeTab === "all") {
+      console.log("Auto-selecting pending tab because there are pending users");
       setActiveTab("pending");
     }
-  }, [pendingCount]);
+  }, [pendingCount, activeTab]);
 
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-between items-center mb-6">
-          <TabsList className="grid grid-cols-4 w-auto">
+          <TabsList className="grid grid-cols-5 w-auto">
             <TabsTrigger value="all">
               All Users {filteredUsers?.length > 0 && `(${filteredUsers.length})`}
             </TabsTrigger>
@@ -65,6 +67,9 @@ const UserTabs = ({
             </TabsTrigger>
             <TabsTrigger value="rejected">
               Rejected {rejectedCount > 0 && `(${rejectedCount})`}
+            </TabsTrigger>
+            <TabsTrigger value="banned">
+              Banned {bannedCount > 0 && `(${bannedCount})`}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -111,6 +116,19 @@ const UserTabs = ({
         <TabsContent value="rejected" className="mt-0">
           <UserTable 
             users={filterUsersByStatus(filteredUsers, "rejected")}
+            loading={loading}
+            onViewUser={onViewUser}
+            onVerifyUser={onVerifyUser}
+            onRejectUser={onRejectUser}
+            onBanUser={onBanUser}
+            onActivateUser={onActivateUser}
+            onDeactivateUser={onDeactivateUser}
+          />
+        </TabsContent>
+        
+        <TabsContent value="banned" className="mt-0">
+          <UserTable 
+            users={filterUsersByStatus(filteredUsers, "banned")}
             loading={loading}
             onViewUser={onViewUser}
             onVerifyUser={onVerifyUser}
