@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Use a type assertion approach instead of importing the type
@@ -56,6 +57,16 @@ export async function fetchUserProfile(userId: string): Promise<{ profile: Profi
   try {
     console.log("🔍 Attempting to fetch profile for userId:", userId);
     
+    // Use the supabase function call to avoid infinite recursion in RLS
+    const { data: adminCheckData, error: adminCheckError } = await supabase.rpc('is_admin', { user_id: userId });
+    
+    if (adminCheckError) {
+      console.error("❌ Error checking admin status:", adminCheckError);
+    } else {
+      isAdmin = !!adminCheckData;
+      console.log("👑 Admin status from database:", isAdmin);
+    }
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')

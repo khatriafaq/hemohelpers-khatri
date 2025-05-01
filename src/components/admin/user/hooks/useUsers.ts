@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +29,7 @@ export const useUsers = () => {
           return;
         }
         
-        // Fetch all users from Supabase
+        // Fetch all users from Supabase - removed filtering to get ALL users
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -52,7 +53,7 @@ export const useUsers = () => {
           return;
         }
 
-        console.log(`Successfully fetched ${data.length} users from profiles table:`, data);
+        console.log(`Successfully fetched ${data.length} users from profiles table`);
 
         // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
@@ -92,13 +93,6 @@ export const useUsers = () => {
           else {
             status = "pending";
           }
-          
-          // Log the status determination for debugging
-          console.log(`User ${profile.id} status determination:`, {
-            is_verified: profile.is_verified,
-            is_available: profile.is_available,
-            determined_status: status
-          });
           
           return {
             id: profile.id || "unknown-id",
