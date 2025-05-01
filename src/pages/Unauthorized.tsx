@@ -2,8 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/auth";
 
 const Unauthorized = () => {
+  const { isAdmin, user } = useAuth();
+  
+  console.log("Unauthorized page rendered with", { isAdmin, userId: user?.id });
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted/20 px-4">
       <div className="text-center max-w-md">

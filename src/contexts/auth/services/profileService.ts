@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Use a type assertion approach instead of importing the type
@@ -56,6 +57,16 @@ export async function fetchUserProfile(userId: string): Promise<{ profile: Profi
   try {
     console.log("🔍 Attempting to fetch profile for userId:", userId);
     
+    // Use the supabase function call to avoid infinite recursion in RLS
+    const { data: adminCheckData, error: adminCheckError } = await supabase.rpc('is_admin', { user_id: userId });
+    
+    if (adminCheckError) {
+      console.error("❌ Error checking admin status:", adminCheckError);
+    } else {
+      isAdmin = !!adminCheckData;
+      console.log("👑 Admin status from database:", isAdmin);
+    }
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -149,42 +160,48 @@ function createDefaultProfile(userId: string, email: string = '', isAdmin: boole
   };
 }
 
-// ✅ Renamed this to match the named import
-export async function updateUserProfile(profileData: any) {
-  if (!profileData.id) {
-    console.error("❌ updateUserProfile: No profile ID provided");
-    return { success: false, error: "No profile ID provided" };
+// Update the updateUserProfile function to accept user ID as the first parameter
+export async function updateUserProfile(userId: string, profileData: any) {
+  if (!userId) {
+    console.error("❌ updateUserProfile: No user ID provided");
+    return { error: new Error("No user ID provided"), data: null };
   }
 
   try {
-    console.log("🔄 Updating profile for id:", profileData.id);
+    console.log("🔄 Updating profile for id:", userId);
     
-    if (profileData.email) {
-      profileData.is_admin = 
-        profileData.email.endsWith('@admin.com') || 
-        profileData.email.endsWith('@hemohelpers.com');
-      console.log("👑 Admin status set to:", profileData.is_admin);
+    // Ensure we have the ID in the profile data
+    const updatedData = { 
+      ...profileData,
+      id: userId
+    };
+    
+    if (updatedData.email) {
+      updatedData.is_admin = 
+        updatedData.email.endsWith('@admin.com') || 
+        updatedData.email.endsWith('@hemohelpers.com');
+      console.log("👑 Admin status set to:", updatedData.is_admin);
     }
 
     const { data, error } = await supabase
       .from('profiles')
-      .update(profileData)
-      .eq('id', profileData.id)
+      .update(updatedData)
+      .eq('id', userId)
       .select()
       .single();
 
     if (error) {
       console.error("❌ Profile update error:", error);
-      return { success: false, error: error.message };
+      return { error, data: null };
     }
 
     console.log("✅ Profile updated successfully");
-    return { success: true, data };
-  } catch (e) {
-    console.error("❌ Exception in updateUserProfile:", e);
+    return { data, error: null };
+  } catch (error: any) {
+    console.error("❌ Exception in updateUserProfile:", error);
     return { 
-      success: false, 
-      error: e instanceof Error ? e.message : String(e) 
+      error, 
+      data: null 
     };
   }
 }

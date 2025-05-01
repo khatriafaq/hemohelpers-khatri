@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { User } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
@@ -52,25 +53,28 @@ export const useUsers = () => {
           return;
         }
 
-        console.log(`Successfully fetched ${data.length} users from profiles table:`, data);
+        console.log(`Successfully fetched ${data.length} users from profiles table`);
+        console.log("Raw user data sample:", data.slice(0, 3)); // Log sample of raw data
 
         // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
-          // Determine status based on verification state
-          let status: "verified" | "pending" | "rejected" | "banned" = "pending";
-          
           // Log the raw values for debugging
           console.log(`User ${profile.id} raw values:`, {
+            id: profile.id,
+            email: profile.email,
             is_verified: profile.is_verified,
             is_available: profile.is_available,
             created_at: profile.created_at
           });
           
-          // If is_verified is explicitly set to true, user is verified
+          // CORRECTED LOGIC FOR STATUS DETERMINATION:
+          let status: "verified" | "pending" | "rejected" | "banned";
+          
+          // If is_verified is explicitly true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
           } 
-          // If is_verified is explicitly set to false and is_available is false, user is banned
+          // If is_verified is false and is_available is false, user is banned
           else if (profile.is_verified === false && profile.is_available === false) {
             status = "banned";
           }
@@ -78,17 +82,11 @@ export const useUsers = () => {
           else if (profile.is_verified === false) {
             status = "pending";
           }
-          // If is_verified is null, undefined, or any other value, user is pending (new user)
+          // Fallback for any other case - mark as pending
           else {
             status = "pending";
+            console.log(`User ${profile.id} has unusual is_verified value: ${profile.is_verified}, defaulting to pending`);
           }
-          
-          // Log the status determination for debugging
-          console.log(`User ${profile.id} status determination:`, {
-            is_verified: profile.is_verified,
-            is_available: profile.is_available,
-            determined_status: status
-          });
           
           return {
             id: profile.id || "unknown-id",
@@ -112,6 +110,11 @@ export const useUsers = () => {
         });
 
         console.log("Formatted users for display:", formattedUsers);
+        console.log("Pending users:", formattedUsers.filter(u => u.status === "pending").length);
+        console.log("Verified users:", formattedUsers.filter(u => u.status === "verified").length);
+        console.log("Rejected users:", formattedUsers.filter(u => u.status === "rejected").length);
+        console.log("Banned users:", formattedUsers.filter(u => u.status === "banned").length);
+        
         setUsers(formattedUsers);
       } catch (error) {
         console.error("Exception fetching users:", error);

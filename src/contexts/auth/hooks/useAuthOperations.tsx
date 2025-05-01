@@ -1,4 +1,3 @@
-
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmail, signUpWithEmail, signOutUser } from "../services";
@@ -112,13 +111,15 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
       
       console.log("Updating profile with data:", data);
       
+      // Pass user ID as first parameter, data as second parameter to match function signature
       const { data: updatedData, error } = await updateUserProfile(user.id, data);
 
       if (error) {
         console.error("Profile update error:", error);
         toast({
           title: "Update failed",
-          description: error.message || "There was an error updating your profile.",
+          // Ensure we handle both Error objects and string errors
+          description: error instanceof Error ? error.message : String(error),
           variant: "destructive",
         });
         return { error, data: null };
@@ -138,7 +139,8 @@ export const useAuthOperations = (user: any, setProfile: (profile: any) => void)
       console.error("Profile update error:", error);
       toast({
         title: "Update failed",
-        description: error.message || "There was an error updating your profile.",
+        // Ensure we handle both Error objects and string errors
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
       return { error, data: null };
