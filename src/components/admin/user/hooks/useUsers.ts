@@ -54,6 +54,7 @@ export const useUsers = () => {
         }
 
         console.log(`Successfully fetched ${data.length} users from profiles table`);
+        console.log("Raw user data sample:", data.slice(0, 3)); // Log sample of raw data
 
         // Transform the data to match our User interface
         const formattedUsers = data.map(profile => {
@@ -62,36 +63,42 @@ export const useUsers = () => {
           
           // Log the raw values for debugging
           console.log(`User ${profile.id} raw values:`, {
+            id: profile.id,
+            email: profile.email,
             is_verified: profile.is_verified,
             is_available: profile.is_available,
             created_at: profile.created_at
           });
           
-          // If is_verified is explicitly set to true, user is verified
+          // If is_verified is explicitly true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
           } 
-          // If is_verified is explicitly set to false and is_available is false, user is banned
+          // If is_verified is explicitly false and is_available is false, user is banned
           else if (profile.is_verified === false && profile.is_available === false) {
             status = "banned";
           }
-          // If is_verified is explicitly set to false and the user was recently created (within last 24 hours),
-          // treat them as pending (new user)
-          else if (profile.is_verified === false && profile.created_at) {
-            const createdDate = new Date(profile.created_at);
-            const now = new Date();
-            const hoursSinceCreation = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
+          // If is_verified is explicitly false, treat user as rejected, unless created recently
+          else if (profile.is_verified === false) {
+            // Default to rejected
+            status = "rejected";
             
-            if (hoursSinceCreation < 24) {
-              status = "pending";
-              console.log(`User ${profile.id} is a new user (created ${hoursSinceCreation.toFixed(2)} hours ago), treating as pending`);
-            } else {
-              status = "rejected";
+            // But if the user was created within last 24 hours, mark as pending
+            if (profile.created_at) {
+              const createdDate = new Date(profile.created_at);
+              const now = new Date();
+              const hoursSinceCreation = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
+              
+              if (hoursSinceCreation < 24) {
+                status = "pending";
+                console.log(`User ${profile.id} is a new user (created ${hoursSinceCreation.toFixed(2)} hours ago), treating as pending`);
+              }
             }
           }
-          // If is_verified is null, undefined, or any other value, user is pending (new user)
+          // If is_verified is null/undefined, user is pending
           else {
             status = "pending";
+            console.log(`User ${profile.id} has is_verified=${profile.is_verified}, treating as pending`);
           }
           
           return {
@@ -116,6 +123,10 @@ export const useUsers = () => {
         });
 
         console.log("Formatted users for display:", formattedUsers);
+        console.log("Pending users:", formattedUsers.filter(u => u.status === "pending").length);
+        console.log("Verified users:", formattedUsers.filter(u => u.status === "verified").length);
+        console.log("Rejected users:", formattedUsers.filter(u => u.status === "rejected").length);
+        
         setUsers(formattedUsers);
       } catch (error) {
         console.error("Exception fetching users:", error);
