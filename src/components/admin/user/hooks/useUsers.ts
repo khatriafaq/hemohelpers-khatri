@@ -67,25 +67,30 @@ export const useUsers = () => {
             created_at: profile.created_at
           });
           
-          // UPDATED LOGIC FOR STATUS DETERMINATION:
+          // CORRECTED LOGIC FOR STATUS DETERMINATION:
           let status: "verified" | "pending" | "rejected" | "banned";
           
           // If is_verified is explicitly true, user is verified
           if (profile.is_verified === true) {
             status = "verified";
           } 
-          // If is_verified is explicitly false and is_available is false, user is banned
+          // If is_verified is false and is_available is false, user is banned
           else if (profile.is_verified === false && profile.is_available === false) {
             status = "banned";
+          }
+          // If is_verified is null or undefined, user is pending
+          else if (profile.is_verified === null || profile.is_verified === undefined) {
+            status = "pending";
+            console.log(`User ${profile.id} has is_verified=${profile.is_verified}, treating as pending`);
           }
           // If is_verified is explicitly false, user is rejected
           else if (profile.is_verified === false) {
             status = "rejected";
           }
-          // If is_verified is null or undefined, user is pending
+          // Fallback for any other case - mark as pending
           else {
             status = "pending";
-            console.log(`User ${profile.id} has is_verified=${profile.is_verified}, treating as pending`);
+            console.log(`User ${profile.id} has unusual is_verified value: ${profile.is_verified}, defaulting to pending`);
           }
           
           return {
